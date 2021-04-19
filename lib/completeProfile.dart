@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shopping/userHomePage.dart';
 import 'globalVariable.dart' as global;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -361,9 +362,12 @@ class _completeProfileState extends State<completeProfile> {
         .child(_auth.currentUser.uid)
         .once()
         .then((DataSnapshot snap) {
-      if (snap.value != null) {
+      if (snap.value["type"].toString() == "Merchant") {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => homePage()));
+      } else if (snap.value["type"].toString() == "User") {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => userHomePage()));
       }
     });
   }

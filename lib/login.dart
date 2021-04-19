@@ -1,9 +1,11 @@
 import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shopping/userHomePage.dart';
 import 'completeProfile.dart';
 import 'globalVariable.dart' as global;
 import 'auth.dart';
@@ -32,7 +34,7 @@ class _BodyState extends State<Body> {
   int randomNumber;
   bool loading = false;
   bool userLog = false;
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   initState() {
     checkUser();
@@ -206,10 +208,22 @@ class _BodyState extends State<Body> {
   }
 
   Future<void> checkUser() async {
-    final User user = await FirebaseAuth.instance.currentUser;
+    final User user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => homePage()));
+      await FirebaseDatabase.instance
+          .reference()
+          .child("Users")
+          .child(_auth.currentUser.uid)
+          .once()
+          .then((DataSnapshot snap) {
+        if (snap.value["type"].toString() == "Merchant") {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => homePage()));
+        } else if (snap.value["type"].toString() == "User") {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => userHomePage()));
+        }
+      });
     } else {
       setState(() {
         userLog = true;
