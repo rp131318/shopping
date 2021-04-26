@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/userHomePage.dart';
 import 'completeProfile.dart';
 import 'globalVariable.dart' as global;
@@ -34,16 +35,22 @@ class _BodyState extends State<Body> {
   int randomNumber;
   bool loading = false;
   bool userLog = false;
+  bool merchant = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   @override
   initState() {
     checkUser();
   }
 
-  void click() {
+  Future<void> click() async {
     setState(() {
       loading = true;
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // int counter = (prefs.getInt('counter') ?? 0) + 1;
+    // print('Pressed $counter times.');
+    await prefs.setBool('merchant', merchant);
+
     signInWithGoogle().then((user) => {
           this.user = user,
           Navigator.of(context)
@@ -133,7 +140,7 @@ class _BodyState extends State<Body> {
           Visibility(
             child: Center(
               child: FlutterLogo(
-                size: 200,
+                size: 166,
               ),
             ),
             visible: !userLog,
@@ -188,6 +195,22 @@ class _BodyState extends State<Body> {
                   ),
                 ),
 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("I  am Merchant"),
+                    Checkbox(
+                        value: merchant,
+                        activeColor: global.colorDark,
+                        onChanged: (value) {
+                          setState(() {
+                            merchant = value;
+                          });
+                          print("value :: $value");
+                        }),
+                  ],
+                )
+
                 // Align(
                 //   alignment: Alignment.center,
                 //   child: Text(
@@ -222,6 +245,10 @@ class _BodyState extends State<Body> {
         } else if (snap.value["type"].toString() == "User") {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => userHomePage()));
+        } else {
+          setState(() {
+            userLog = true;
+          });
         }
       });
     } else {

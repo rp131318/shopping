@@ -34,7 +34,9 @@ dependencies:
   firebase_database: any
   permission_handler: 4.4.0
   firebase_storage: ^4.0.1
+  flutter_datetime_picker: ^1.5.1
   sms_autofill: ^1.2.6
+  shared_preferences: ^2.0.5
   image_picker: any
 
 dev_dependencies:

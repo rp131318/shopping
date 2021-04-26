@@ -42,8 +42,8 @@ Future<String> appCurrentUser(String key) async {
       .then((DataSnapshot snap) {
     Map<dynamic, dynamic> values = snap.value;
     name = values["name"].toString();
-    email = values["email"].toString();
-    return name;
+    // email = values["email"].toString();
+    return Future.value(name);
     // print("Return Data :: " + values[key].toString());
   });
 }

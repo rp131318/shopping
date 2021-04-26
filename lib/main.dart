@@ -27,12 +27,12 @@ class MyApp extends StatelessWidget {
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'mn',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginPage(),
+      home: completeProfile(),
+      // home: LoginPage(),
     );
   }
 }
