@@ -36,7 +36,7 @@ class _homePageState extends State<homePage> {
                   gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: <Color>[global.colorDark1, global.colorDark],
+                colors: <Color>[global.colorDark, global.colorDark],
               )),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

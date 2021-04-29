@@ -20,6 +20,10 @@ const Color colorDarkTrans = Color(0xccED3946);
 const Color colorBlack1 = Color(0xFF5d5047);
 const Color colorBlack2 = Color(0xFF1f1b18);
 const Color colorBlack3 = Color(0xFF958787);
+const Color colorBlack4 = Color(0xFF4a4b50);
+const Color colorBlack5 = Color(0xFF404145);
+final grey = Colors.grey;
+final white = Colors.white;
 
 String milli = DateTime.now().millisecondsSinceEpoch.toString();
 

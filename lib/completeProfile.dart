@@ -675,11 +675,19 @@ class _completeProfileState extends State<completeProfile> {
         .child("Users")
         .child(_auth.currentUser.uid)
         .once()
-        .then((DataSnapshot snap) {
+        .then((DataSnapshot snap) async {
       if (snap.value["type"].toString() == "Merchant") {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // int counter = (prefs.getInt('counter') ?? 0) + 1;
+        // print('Pressed $counter times.');
+        await prefs.setBool('merchant', true);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => homePage()));
       } else if (snap.value["type"].toString() == "User") {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // int counter = (prefs.getInt('counter') ?? 0) + 1;
+        // print('Pressed $counter times.');
+        await prefs.setBool('merchant', false);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => userHomePage()));
       } else {

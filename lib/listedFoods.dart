@@ -2,7 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shopping/merchantFoodDetails.dart';
 import 'globalVariable.dart' as global;
 
 class listedFoods extends StatefulWidget {
@@ -22,116 +25,48 @@ class _listedFoodsState extends State<listedFoods> {
 
   @override
   void initState() {
-    // TODO: implement initState
     getListedFood();
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.white,
       statusBarIconBrightness: Brightness.dark,
-      statusBarColor: Colors.transparent,
     ));
     return Scaffold(
       body: Column(
         children: [
-          Hero(
-              tag: "lsFood",
-              child: Image.asset(
-                "images/food.jpg",
-                height: 200,
-              )),
+          SizedBox(
+            height: 44,
+          ),
           Padding(
             padding: const EdgeInsets.only(left: 14),
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
-                "Listed Foods",
-                textAlign: TextAlign.left,
+                "Food Listed",
                 style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: global.colorDark),
+                    color: global.colorBlack5),
               ),
             ),
           ),
-          Flexible(
-              child: p.length > 0 && product.length > 0
-                  ? ListView.builder(
-                      itemCount: product.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          // color: global.colorBlack2,
-                          margin: EdgeInsets.all(8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(22.0),
-                          ),
-                          elevation: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              title: Text(
-                                n[index],
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: global.colorDark),
-                              ),
-                              trailing: IconButton(
-                                tooltip: "Change Food Details",
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 28,
-                                  color: global.colorDark,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(c[index],
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: global.colorBlack3)),
-                                  Text(l[index],
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: global.colorBlack3)),
-                                  Text(e[index],
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: global.colorBlack3)),
-                                  SizedBox(
-                                    height: 12,
-                                  ),
-                                  Text(
-                                    p[index] + " INR",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: global.colorBlack2),
-                                  ),
-                                ],
-                              ),
-                              leading: Card(
-                                semanticContainer: true,
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Image.network(
-                                  im[index],
-                                  width: 66,
-                                  height: 66,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      })
-                  : Center(child: CircularProgressIndicator()))
+          Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "Your delicious listed foods",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey),
+              ),
+            ),
+          ),
+          gridOfFood(),
+          bottom(),
         ],
       ),
     );
@@ -189,5 +124,157 @@ class _listedFoodsState extends State<listedFoods> {
         });
       }
     }
+  }
+
+  Widget gridOfFood() {
+    return p.length > 0
+        ? Flexible(
+            child: GridView.count(
+                childAspectRatio: 10 / 14,
+                crossAxisCount: 2,
+                children: List.generate(n.length, (index) {
+                  return InkWell(
+                    onTap: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      // int counter = (prefs.getInt('counter') ?? 0) + 1;
+                      // print('Pressed $counter times.');
+                      await prefs.setString('foodName', n[index].toString());
+                      await prefs.setString('foodPrice', p[index].toString());
+                      await prefs.setString(
+                          'foodCategory', c[index].toString());
+                      await prefs.setString('foodImage', im[index].toString());
+                      await prefs.setString(
+                          'foodLocation', l[index].toString());
+                      await prefs.setString('foodExp', e[index].toString());
+                      await prefs.setString(
+                          'foodKey', product[index].toString());
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => merchantFoodDetails()));
+                    },
+                    child: Card(
+                      elevation: 4,
+                      margin: EdgeInsets.only(
+                          left: 12, right: 12, top: 12, bottom: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 14,
+                          ),
+                          Card(
+                            semanticContainer: true,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(100)),
+                            child: Image.network(
+                              im[index],
+                              height: 122,
+                              width: 122,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 14,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 14),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                n[index].toString(),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: global.colorBlack5),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 14),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                '\u{20B9} ' + p[index].toString(),
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: global.colorDark),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                })),
+          )
+        : Center(
+            child: Card(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            margin: EdgeInsets.only(top: 222),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor:
+                        new AlwaysStoppedAnimation<Color>(global.colorDark),
+                  ),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Text("Loading your listed foods..."),
+                ],
+              ),
+            ),
+          ));
+  }
+
+  Widget bottom() {
+    return p.length > 0
+        ? Align(
+            alignment: Alignment.topRight,
+            child: SizedBox(
+              height: 66,
+              width: 166,
+              child: Card(
+                  color: global.colorDark,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(16),
+                          bottomLeft: Radius.circular(28),
+                          bottomRight: Radius.circular(22))),
+                  margin: EdgeInsets.zero,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Total Items",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 6,
+                      ),
+                      Text(
+                        n.length.toString(),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ],
+                  )),
+            ),
+          )
+        : Text(" ");
   }
 }

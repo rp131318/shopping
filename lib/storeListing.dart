@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'globalVariable.dart' as global;
 import 'homePage.dart';
@@ -108,21 +109,55 @@ class _storeListingState extends State<storeListing> {
                     hintStyle: TextStyle(color: Colors.grey)),
               ),
             ),
-            Container(
-              height: 46,
-              decoration: BoxDecoration(
-                  color: global.colorLight,
-                  border: Border.all(color: global.colorBlack3, width: 2),
-                  borderRadius: BorderRadius.circular(8)),
-              margin: EdgeInsets.only(left: 14, right: 14, top: 6),
-              child: TextField(
-                style: TextStyle(color: global.colorBlack2, fontSize: 18),
-                controller: expController,
-                textAlign: TextAlign.center,
-                decoration: new InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Food Expiration",
-                    hintStyle: TextStyle(color: Colors.grey)),
+            InkWell(
+              onTap: () {
+                DatePicker.showDatePicker(context,
+                    showTitleActions: true,
+                    minTime: DateTime.now(),
+                    maxTime: DateTime.now().add(const Duration(days: 100)),
+                    theme: DatePickerTheme(
+                        // headerColor: global,
+                        backgroundColor: Colors.white,
+                        itemStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                        cancelStyle:
+                            TextStyle(color: Colors.black, fontSize: 16),
+                        doneStyle:
+                            TextStyle(color: global.colorDark, fontSize: 16)),
+                    onChanged: (date) {
+                  print('change $date in time zone ' +
+                      date.timeZoneOffset.inHours.toString());
+                  setState(() {
+                    expController.text =
+                        date.toString().split(" ")[0].toString();
+                  });
+                }, onConfirm: (date) {
+                  print('confirm $date');
+                  setState(() {
+                    expController.text =
+                        date.toString().split(" ")[0].toString();
+                  });
+                }, currentTime: DateTime.now(), locale: LocaleType.en);
+              },
+              child: Container(
+                height: 46,
+                decoration: BoxDecoration(
+                    color: global.colorLight,
+                    border: Border.all(color: global.colorBlack3, width: 2),
+                    borderRadius: BorderRadius.circular(8)),
+                margin: EdgeInsets.only(left: 14, right: 14, top: 6),
+                child: TextField(
+                  enabled: false,
+                  style: TextStyle(color: global.colorBlack2, fontSize: 18),
+                  controller: expController,
+                  textAlign: TextAlign.center,
+                  decoration: new InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Food Expiration",
+                      hintStyle: TextStyle(color: Colors.grey)),
+                ),
               ),
             ),
             Container(
