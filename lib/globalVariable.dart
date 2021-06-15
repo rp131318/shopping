@@ -4,9 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'globalVariable.dart' as global;
-import 'auth.dart';
-import 'dart:math';
 import 'dart:ui';
 
 // String colorAccent = "32a4f4";
@@ -24,6 +21,7 @@ const Color colorBlack4 = Color(0xFF4a4b50);
 const Color colorBlack5 = Color(0xFF404145);
 final grey = Colors.grey;
 final white = Colors.white;
+final rupees = ' \u{20B9}';
 
 String milli = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -53,6 +51,22 @@ Future<String> appCurrentUser(String key) async {
 }
 
 void showSnackbar(context, String message, MaterialColor color) {
-  final snackBar = SnackBar(backgroundColor: color, content: Text(message));
+  final snackBar = SnackBar(
+    backgroundColor: color,
+    content: Text(message),
+  );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+void showSnackbarWithButton(
+    context, String message, MaterialColor color, btnText, function()) {
+  final snackBar = SnackBar(
+    backgroundColor: color,
+    content: Text(message),
+    action: SnackBarAction(
+      label: btnText,
+      onPressed: function(),
+    ),
+  );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }

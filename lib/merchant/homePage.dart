@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shopping/listedFoods.dart';
-import 'package:shopping/settingPage.dart';
-import 'package:shopping/storeListing.dart';
-import 'globalVariable.dart' as global;
+import 'package:shopping/authProfile/completeProfile.dart';
+import 'package:shopping/merchant/listedFoods.dart';
+import 'package:shopping/merchant/storeListing.dart';
+import 'package:shopping/both/settingPage.dart';
+import 'package:shopping/globalVariable.dart' as global;
 
 class homePage extends StatefulWidget {
   @override
@@ -14,10 +15,11 @@ class homePage extends StatefulWidget {
 
 class _homePageState extends State<homePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool profileCon = false;
 
   @override
   void initState() {
-    //Todo
+    checkProfileCon();
     // String name = global.appCurrentUser("name").toString();
   }
 
@@ -112,8 +114,12 @@ class _homePageState extends State<homePage> {
                             height: 200,
                             child: InkWell(
                               onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => storeListing()));
+                                if (profileCon) {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => storeListing()));
+                                } else {
+                                  showSnackbarWithButton();
+                                }
                               },
                               child: Card(
                                   semanticContainer: true,
@@ -481,5 +487,36 @@ class _homePageState extends State<homePage> {
         ),
       ),
     );
+  }
+
+  Future<void> checkProfileCon() async {
+    final User user = FirebaseAuth.instance.currentUser;
+    final uid = user.uid.toString();
+    FirebaseDatabase.instance
+        .reference()
+        .child("Users")
+        .child(uid)
+        .once()
+        .then((DataSnapshot snap) {
+      if (snap.value["con"].toString() == "1") {
+        profileCon = true;
+      }
+    });
+  }
+
+  void showSnackbarWithButton() {
+    final snackBar = SnackBar(
+      backgroundColor: Colors.deepOrange,
+      content: Text("Complete profile to use this feature."),
+      action: SnackBarAction(
+        label: "Complete Now",
+        textColor: Colors.white,
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => completeProfile()));
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

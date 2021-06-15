@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/merchantFoodDetails.dart';
-import 'globalVariable.dart' as global;
+import 'package:shopping/merchant/merchantFoodDetails.dart';
+import 'package:shopping/globalVariable.dart' as global;
 
 class listedFoods extends StatefulWidget {
   @override
@@ -22,6 +22,7 @@ class _listedFoodsState extends State<listedFoods> {
   var im = [];
   var e = [];
   var c = [];
+  var unit = [];
 
   @override
   void initState() {
@@ -111,6 +112,7 @@ class _listedFoodsState extends State<listedFoods> {
         l.add(values["l"].toString());
         n.add(values["n"].toString());
         p.add(values["p"].toString());
+        unit.add(values["unit"].toString());
         // print(c);
       });
       if (i == product.length - 1) {
@@ -121,6 +123,7 @@ class _listedFoodsState extends State<listedFoods> {
           print("L :: $l");
           print("N :: $n");
           print("P :: $p");
+          print("unit :: $unit");
         });
       }
     }
@@ -147,6 +150,7 @@ class _listedFoodsState extends State<listedFoods> {
                       await prefs.setString(
                           'foodLocation', l[index].toString());
                       await prefs.setString('foodExp', e[index].toString());
+                      await prefs.setString('unit', unit[index].toString());
                       await prefs.setString(
                           'foodKey', product[index].toString());
                       Navigator.of(context).push(MaterialPageRoute(
@@ -199,7 +203,10 @@ class _listedFoodsState extends State<listedFoods> {
                             child: Align(
                               alignment: Alignment.topLeft,
                               child: Text(
-                                '\u{20B9} ' + p[index].toString(),
+                                '\u{20B9} ' +
+                                    p[index].toString() +
+                                    "/" +
+                                    unit[index].toString(),
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

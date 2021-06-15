@@ -2,15 +2,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'file:///G:/Food%20Delivery%20App/shopping-master/lib/authProfile/phoneAuth.dart';
 
-import 'completeProfile.dart';
-import 'homePage.dart';
-import 'homePage.dart';
-import 'login.dart';
-import 'login.dart';
-import 'login.dart';
-import 'login.dart';
-import 'login.dart';
+import 'authProfile/completeProfile.dart';
+import 'merchant/homePage.dart';
+import 'merchant/homePage.dart';
+import 'authProfile/login.dart';
+import 'authProfile/login.dart';
+import 'authProfile/login.dart';
+import 'authProfile/login.dart';
+import 'authProfile/login.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

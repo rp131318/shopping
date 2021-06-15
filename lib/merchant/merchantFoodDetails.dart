@@ -6,9 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/listedFoods.dart';
-import 'globalVariable.dart' as global;
-import 'globalVariable.dart';
+import 'package:shopping/merchant/listedFoods.dart';
+import 'package:shopping/globalVariable.dart' as global;
 
 class merchantFoodDetails extends StatefulWidget {
   @override
@@ -34,7 +33,7 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
   bool dialog = true;
   double popHeight;
   StateSetter _setState;
-  String _key;
+  String _key, unit;
 
   var list = ["Name", "Price", "Food Category", "Food Expiry", "Location"];
   var subList = [
@@ -100,7 +99,7 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            '\u{20B9} ' + price,
+                            '\u{20B9} ' + price + "/" + unit,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(
@@ -213,6 +212,7 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
     image = prefs.getString("foodImage");
     location = prefs.getString("foodLocation");
     productKey = prefs.getString("foodKey");
+    unit = prefs.getString("unit");
     setState(() {
       print(location);
       print("productKey $productKey");

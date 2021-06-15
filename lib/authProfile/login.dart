@@ -6,13 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/userHomePage.dart';
-import 'completeProfile.dart';
-import 'globalVariable.dart' as global;
+import 'package:shopping/authProfile/phoneAuth.dart';
+import 'package:shopping/user/userHomePage.dart';
 import 'auth.dart';
 import 'dart:math';
-
-import 'homePage.dart';
+import 'package:shopping/globalVariable.dart' as global;
+import '../merchant/homePage.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -54,7 +53,7 @@ class _BodyState extends State<Body> {
     signInWithGoogle().then((user) => {
           this.user = user,
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => completeProfile())),
+              .push(MaterialPageRoute(builder: (context) => phoneAuth())),
           print(user)
         });
   }
@@ -238,11 +237,15 @@ class _BodyState extends State<Body> {
           .child("Users")
           .child(_auth.currentUser.uid)
           .once()
-          .then((DataSnapshot snap) {
+          .then((DataSnapshot snap) async {
         if (snap.value["type"].toString() == "Merchant") {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('merchant', true);
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => homePage()));
         } else if (snap.value["type"].toString() == "User") {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('merchant', false);
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => userHomePage()));
         } else {

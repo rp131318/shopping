@@ -4,9 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'auth.dart';
-import 'globalVariable.dart' as global;
-import 'login.dart';
+import 'package:shopping/authProfile/auth.dart';
+import 'package:shopping/authProfile/login.dart';
+import 'package:shopping/globalVariable.dart';
+import 'package:shopping/globalVariable.dart' as global;
+import '../authProfile/completeProfile.dart';
 
 class settingPage extends StatefulWidget {
   @override
@@ -182,37 +184,58 @@ class _settingPageState extends State<settingPage> {
                     buildDivider(),
                     buildProfileText("Gender", gender),
                     buildDivider(),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 6, right: 55, left: 55),
+                    Card(
+                      margin: EdgeInsets.only(left: 22, right: 22, top: 22),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
                       child: Container(
-                        height: 55,
-                        width: 300,
-                        child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            elevation: 6,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: global.colorBlack1),
-                              child: Center(
-                                child: InkWell(
-                                  onTap: () async {
-                                    await FirebaseAuth.instance.signOut();
-                                    signOutGoogle();
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) => LoginPage()));
-                                  },
-                                  child: Text(
-                                    "Logout",
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            )),
+                        height: 44,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: global.colorBlack1),
+                        child: Center(
+                          child: InkWell(
+                            onTap: () async {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => completeProfile()));
+                            },
+                            child: Text(
+                              "Edit Profile",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Card(
+                      margin: EdgeInsets.only(
+                          left: 22, right: 22, top: 8, bottom: 33),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: colorBlack1, width: 2),
+                        ),
+                        child: Center(
+                          child: InkWell(
+                            onTap: () async {
+                              await FirebaseAuth.instance.signOut();
+                              signOutGoogle();
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => LoginPage()));
+                            },
+                            child: Text(
+                              "Logout",
+                              style:
+                                  TextStyle(fontSize: 20, color: colorBlack1),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -273,7 +296,11 @@ class _settingPageState extends State<settingPage> {
         .once()
         .then((DataSnapshot snap) {
       Map<dynamic, dynamic> values = snap.value;
-      add = values["address"].toString();
+      add = values["address1"].toString() +
+          " " +
+          values["address2"].toString() +
+          " " +
+          values["pincode"].toString();
       food = values["food"].toString();
       phone = values["phone"].toString();
       city = values["city"].toString();

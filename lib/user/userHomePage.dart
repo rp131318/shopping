@@ -1,13 +1,13 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shopping/settingPage.dart';
-import 'auth.dart';
-import 'globalVariable.dart' as global;
-import 'globalVariable.dart';
-import 'login.dart';
+import 'file:///G:/Food%20Delivery%20App/shopping-master/lib/both/settingPage.dart';
+import '../authProfile/auth.dart';
+import '../globalVariable.dart' as global;
+import '../globalVariable.dart';
+import '../authProfile/login.dart';
 
 class userHomePage extends StatefulWidget {
   @override
@@ -18,10 +18,14 @@ class _userHomePageState extends State<userHomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final searchController = TextEditingController();
   var foodName = ["Burger", "Pizza", "Snacks", "Chinese"];
+  String deliverText = " ";
+  var merchantUID = [];
+  var foodID = [];
 
   @override
   void initState() {
-    // TODO: implement initState
+    getData();
+    getListedFood();
   }
 
   @override
@@ -75,7 +79,7 @@ class _userHomePageState extends State<userHomePage> {
                               width: 4,
                             ),
                             Text(
-                              "394221, Surat",
+                              deliverText,
                               style: TextStyle(
                                   fontSize: 20,
                                   color: global.colorBlack2,
@@ -347,5 +351,59 @@ class _userHomePageState extends State<userHomePage> {
         ),
       ),
     );
+  }
+
+  void getData() {
+    final User user = FirebaseAuth.instance.currentUser;
+    final uid = user.uid.toString();
+    FirebaseDatabase.instance
+        .reference()
+        .child("Users")
+        .child(uid)
+        .once()
+        .then((DataSnapshot snap) {
+      deliverText = snap.value["pincode"].toString() +
+          ", " +
+          snap.value["city"].toString();
+
+      setState(() {});
+    });
+  }
+
+  void getListedFood() {
+    merchantUID.clear();
+    FirebaseDatabase.instance
+        .reference()
+        .child("Listed Food")
+        .once()
+        .then((DataSnapshot snap) {
+      Map<dynamic, dynamic> values = snap.value;
+      values.forEach((key, value) {
+        merchantUID.add(key.toString());
+      });
+      print("merchantUID :: $merchantUID");
+      getProductID();
+    });
+  }
+
+  void getProductID() {
+    foodID.clear();
+    for (int i = 0; i < merchantUID.length; i++) {
+      FirebaseDatabase.instance
+          .reference()
+          .child("Listed Food")
+          .child(merchantUID[i])
+          .once()
+          .then((DataSnapshot snap) {
+        Map<dynamic, dynamic> values = snap.value;
+        values.forEach((key, value) {
+          foodID.add(key.toString());
+          print("foodID :: $foodID");
+        });
+      });
+      if (i == merchantUID.length - 1) {
+        print("foodID :: $foodID");
+      }
+    }
   }
 }
