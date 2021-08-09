@@ -42,22 +42,20 @@ class _settingPageState extends State<settingPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const SizedBox(
+          Container(
             width: double.infinity,
-            height: 244,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[global.colorBlack1, global.colorBlack1],
-              )),
+            height: 188,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(22),
+                  bottomRight: Radius.circular(22)),
+              color: colorDark,
             ),
           ),
           Column(
             children: [
               SizedBox(
-                height: 55,
+                height: 33,
               ),
               Center(
                 child: Card(
@@ -68,8 +66,8 @@ class _settingPageState extends State<settingPage> {
                       borderRadius: BorderRadius.circular(100)),
                   child: Image.network(
                     _auth.currentUser.photoURL,
-                    width: 88,
-                    height: 88,
+                    width: 66,
+                    height: 66,
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -95,7 +93,7 @@ class _settingPageState extends State<settingPage> {
                 ),
               ),
               SizedBox(
-                height: 55,
+                height: 33,
               ),
               Flexible(
                 child: ListView(
@@ -193,7 +191,7 @@ class _settingPageState extends State<settingPage> {
                         height: 44,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: global.colorBlack1),
+                            color: global.colorDark),
                         child: Center(
                           child: InkWell(
                             onTap: () async {
@@ -219,7 +217,7 @@ class _settingPageState extends State<settingPage> {
                         height: 44,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: colorBlack1, width: 2),
+                          border: Border.all(color: colorDark, width: 2),
                         ),
                         child: Center(
                           child: InkWell(
@@ -231,8 +229,7 @@ class _settingPageState extends State<settingPage> {
                             },
                             child: Text(
                               "Logout",
-                              style:
-                                  TextStyle(fontSize: 20, color: colorBlack1),
+                              style: TextStyle(fontSize: 20, color: colorDark),
                             ),
                           ),
                         ),

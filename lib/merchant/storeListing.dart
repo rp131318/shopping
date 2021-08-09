@@ -15,6 +15,7 @@ import 'package:shopping/globalVariable.dart';
 import 'package:shopping/globalVariable.dart' as global;
 import 'homePage.dart';
 
+// ignore: camel_case_types
 class storeListing extends StatefulWidget {
   @override
   _storeListingState createState() => _storeListingState();
@@ -47,6 +48,8 @@ class _storeListingState extends State<storeListing> {
   List<String> measList = ["Kg", "Piece", "Litre"];
   int id = 1;
   String radioButtonItem = "Standard";
+  int idMeas = 1;
+  String radioButtonItemMeas = "KG Kilogram";
   var qntGm = ["250", "500", "750", "1000"];
   var qntGmCus = [];
   var qntPrice = [];
@@ -58,36 +61,56 @@ class _storeListingState extends State<storeListing> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.white,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
       statusBarColor: Colors.transparent,
     ));
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18, top: 46),
-                child: Text(
-                  "Food Details",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(22),
+                    bottomRight: Radius.circular(22)),
+                color: colorDark,
               ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18),
-                child: Text(
-                  "We need food details to list your food.",
-                  style: TextStyle(
-                      fontSize: 16, color: grey, fontWeight: FontWeight.bold),
-                ),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18, top: 46),
+                      child: Text(
+                        "Food Details",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18),
+                      child: Text(
+                        "We need food details to list your food.",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 22,
+                  ),
+                ],
               ),
             ),
             SizedBox(
-              height: 44,
+              height: 22,
             ),
             titleTextField("Product Name", nameController),
             SizedBox(
@@ -103,28 +126,19 @@ class _storeListingState extends State<storeListing> {
                       "Measurement",
                       style: TextStyle(
                           fontSize: 18,
-                          color: grey,
+                          color: colorDark,
                           fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                Container(
-                  height: 46,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      // color: global.colorLight,
-                      border: Border.all(color: grey, width: 1),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                  child: buildDropdownButtonMeas(),
-                ),
+                radioButtonOfMeasurement()
               ],
             ),
             SizedBox(
               height: 12,
             ),
             titleTextField(
-                "GST Rate", gstController, true, TextInputType.number),
+                "GST Rate %", gstController, true, TextInputType.number),
             SizedBox(
               height: 12,
             ),
@@ -151,7 +165,7 @@ class _storeListingState extends State<storeListing> {
                       "Quantity Details",
                       style: TextStyle(
                           fontSize: 18,
-                          color: grey,
+                          color: colorDark,
                           fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -194,7 +208,7 @@ class _storeListingState extends State<storeListing> {
                     SizedBox(
                       width: 6,
                     ),
-                    Text("Add customize pricing"),
+                    Text("Add customize pricing and quantity"),
                   ],
                 ),
               ),
@@ -213,12 +227,16 @@ class _storeListingState extends State<storeListing> {
                   alignment: Alignment.topLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 18),
-                    child: Text(
-                      "Product Category",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: grey,
-                          fontWeight: FontWeight.bold),
+                    child: Row(
+                      children: [
+                        Text(
+                          "Product Category",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: colorDark,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -291,7 +309,7 @@ class _storeListingState extends State<storeListing> {
                       "Upload Image",
                       style: TextStyle(
                           fontSize: 18,
-                          color: grey,
+                          color: colorDark,
                           fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -385,7 +403,10 @@ class _storeListingState extends State<storeListing> {
         value: dropdownValueCate,
         elevation: 0,
         underline: Container(),
-        icon: Container(),
+        icon: Icon(
+          Icons.arrow_drop_down_rounded,
+          size: 36,
+        ),
         style: const TextStyle(color: global.colorBlack2),
         onChanged: (String newValue) {
           setState(() {
@@ -497,7 +518,7 @@ class _storeListingState extends State<storeListing> {
             child: Text(
               s,
               style: TextStyle(
-                  fontSize: 18, color: grey, fontWeight: FontWeight.bold),
+                  fontSize: 18, color: colorDark, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -508,6 +529,7 @@ class _storeListingState extends State<storeListing> {
               border: Border.all(color: grey, width: 1),
               borderRadius: BorderRadius.circular(8)),
           margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+          padding: EdgeInsets.only(left: 18),
           child: TextField(
             onSubmitted: (text) {
               setState(() {
@@ -524,7 +546,7 @@ class _storeListingState extends State<storeListing> {
             style: TextStyle(color: global.colorBlack2, fontSize: 18),
             controller: nameController,
             keyboardType: keyBoard,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             cursorColor: global.colorBlack2,
             decoration: new InputDecoration(
                 border: InputBorder.none,
@@ -714,7 +736,7 @@ class _storeListingState extends State<storeListing> {
       child: Row(
         children: [
           Radio(
-            activeColor: global.colorBlack1,
+            activeColor: colorDark,
             value: 1,
             groupValue: id,
             onChanged: (val) {
@@ -730,7 +752,7 @@ class _storeListingState extends State<storeListing> {
             style: new TextStyle(fontSize: 17.0, color: global.colorBlack1),
           ),
           Radio(
-            activeColor: global.colorBlack1,
+            activeColor: colorDark,
             value: 2,
             groupValue: id,
             onChanged: (val) {
@@ -744,6 +766,84 @@ class _storeListingState extends State<storeListing> {
           Text(
             'Customize',
             style: new TextStyle(fontSize: 17.0, color: global.colorBlack1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  radioButtonOfMeasurement() {
+    return Container(
+      // height: 46,
+      decoration: BoxDecoration(
+          // color: global.colorLight,
+          border: Border.all(color: grey, width: 1),
+          borderRadius: BorderRadius.circular(8)),
+      margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Radio(
+                activeColor: colorDark,
+                value: 1,
+                groupValue: idMeas,
+                onChanged: (val) {
+                  setState(() {
+                    radioButtonItemMeas = 'KG Kilogram';
+                    idMeas = 1;
+                    _unit = "Gram";
+                    qntGm = ["250", "500", "750", "1000"];
+                  });
+                },
+              ),
+              Text(
+                'KG Kilogram',
+                style: new TextStyle(fontSize: 17.0, color: global.colorBlack1),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Radio(
+                activeColor: colorDark,
+                value: 2,
+                groupValue: idMeas,
+                onChanged: (val) {
+                  setState(() {
+                    radioButtonItemMeas = 'Piece';
+                    idMeas = 2;
+                    _unit = radioButtonItemMeas;
+                    qntGm = ["1", "3", "5", "10"];
+                  });
+                },
+              ),
+              Text(
+                'Piece',
+                style: new TextStyle(fontSize: 17.0, color: global.colorBlack1),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Radio(
+                activeColor: colorDark,
+                value: 3,
+                groupValue: idMeas,
+                onChanged: (val) {
+                  setState(() {
+                    radioButtonItemMeas = 'Litre';
+                    idMeas = 3;
+                    _unit = radioButtonItemMeas;
+                    qntGm = ["1", "3", "5", "10"];
+                  });
+                },
+              ),
+              Text(
+                'Litre',
+                style: new TextStyle(fontSize: 17.0, color: global.colorBlack1),
+              ),
+            ],
           ),
         ],
       ),

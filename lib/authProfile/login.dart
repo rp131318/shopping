@@ -36,6 +36,7 @@ class _BodyState extends State<Body> {
   bool userLog = false;
   bool merchant = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   initState() {
     checkUser();
@@ -50,12 +51,13 @@ class _BodyState extends State<Body> {
     // print('Pressed $counter times.');
     await prefs.setBool('merchant', merchant);
 
-    signInWithGoogle().then((user) => {
-          this.user = user,
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => phoneAuth())),
-          print(user)
-        });
+    signInWithGoogle().then((user) =>
+    {
+      this.user = user,
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => phoneAuth())),
+      print(user)
+    });
   }
 
   Widget googleLoginButton() {
@@ -66,7 +68,7 @@ class _BodyState extends State<Body> {
         width: 300,
         child: Card(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 6,
             child: Container(
               decoration: BoxDecoration(
@@ -75,36 +77,36 @@ class _BodyState extends State<Body> {
               child: Center(
                 child: loading
                     ? SizedBox(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              new AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                        height: 26,
-                        width: 26,
-                      )
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor:
+                    new AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                  height: 26,
+                  width: 26,
+                )
                     : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Image.asset(
-                              "images/google.png",
-                              width: 33,
-                              height: 33,
-                              color: Colors.white,
-                            ),
-                          ),
-                          InkWell(
-                            onTap: this.click,
-                            child: Text(
-                              "Sign in with Google",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
-                            ),
-                          ),
-                        ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: Image.asset(
+                        "images/google.png",
+                        width: 33,
+                        height: 33,
+                        color: Colors.white,
                       ),
+                    ),
+                    InkWell(
+                      onTap: this.click,
+                      child: Text(
+                        "Sign in with Google",
+                        style:
+                        TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )),
       ),
