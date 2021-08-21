@@ -48,6 +48,42 @@ class ImageLink {
       "https://media.istockphoto.com/photos/hand-inserting-suggestion-into-suggestion-box-picture-id496792842?k=6&m=496792842&s=612x612&w=0&h=tjpiINzHztG4e-YxCUly2vui-QosVGfoVxNQj4Tu9F8=";
 }
 
+bool validateField(context, TextEditingController controller,
+    [int validateLength = 0,
+    String fieldType = "default",
+    String errorMsg = "Field Can't be empty..."]) {
+  if (controller.text.length > validateLength) {
+    switch (fieldType) {
+      case "default":
+        return true;
+        break;
+      case "phone":
+        if (controller.text.length == 10) {
+          return true;
+        }
+        showSnackbar(context, "Phone number should be 10 digits", Colors.red);
+
+        break;
+      case "email":
+        if (controller.text.contains(RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+"))) {
+          return true;
+        }
+        showSnackbar(context, "Provide correct email address", Colors.red);
+        break;
+      case "password":
+        if (controller.text.length > 8) {
+          return true;
+        }
+        showSnackbar(context, "Password should be 8 digits", Colors.red);
+        break;
+    }
+  } else {
+    showSnackbar(context, errorMsg, Colors.red);
+    return false;
+  }
+}
+
 void test() {
   print("Getting Data");
 }
@@ -78,13 +114,13 @@ void showSnackbar(context, String message, MaterialColor color) {
 }
 
 void showSnackbarWithButton(
-    context, String message, MaterialColor color, btnText, function()) {
+    context, String message, MaterialColor color, btnText, function) {
   final snackBar = SnackBar(
     backgroundColor: color,
     content: Text(message),
     action: SnackBarAction(
       label: btnText,
-      onPressed: function(),
+      onPressed: function,
     ),
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);

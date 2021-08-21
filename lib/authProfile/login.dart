@@ -7,11 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/phoneAuth.dart';
-import 'package:shopping/user/userHomePage.dart';
+import 'package:shopping/pages/homePage.dart';
 import 'auth.dart';
 import 'dart:math';
 import 'package:shopping/globalVariable.dart' as global;
-import '../merchant/homePage.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -51,13 +50,12 @@ class _BodyState extends State<Body> {
     // print('Pressed $counter times.');
     await prefs.setBool('merchant', merchant);
 
-    signInWithGoogle().then((user) =>
-    {
-      this.user = user,
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => phoneAuth())),
-      print(user)
-    });
+    signInWithGoogle().then((user) => {
+          this.user = user,
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => phoneAuth())),
+          print(user)
+        });
   }
 
   Widget googleLoginButton() {
@@ -68,24 +66,14 @@ class _BodyState extends State<Body> {
         width: 300,
         child: Card(
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 6,
             child: Container(
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: global.colorDark),
               child: Center(
-                child: loading
-                    ? SizedBox(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor:
-                    new AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                  height: 26,
-                  width: 26,
-                )
-                    : Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
@@ -101,8 +89,7 @@ class _BodyState extends State<Body> {
                       onTap: this.click,
                       child: Text(
                         "Sign in with Google",
-                        style:
-                        TextStyle(fontSize: 20, color: Colors.white),
+                        style: TextStyle(fontSize: 20, color: Colors.white),
                       ),
                     ),
                   ],
@@ -196,21 +183,21 @@ class _BodyState extends State<Body> {
                   ),
                 ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("I  am Merchant"),
-                    Checkbox(
-                        value: merchant,
-                        activeColor: global.colorDark,
-                        onChanged: (value) {
-                          setState(() {
-                            merchant = value;
-                          });
-                          print("value :: $value");
-                        }),
-                  ],
-                )
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Text("I  am Merchant"),
+                //     Checkbox(
+                //         value: merchant,
+                //         activeColor: global.colorDark,
+                //         onChanged: (value) {
+                //           setState(() {
+                //             merchant = value;
+                //           });
+                //           print("value :: $value");
+                //         }),
+                //   ],
+                // )
 
                 // Align(
                 //   alignment: Alignment.center,
@@ -245,11 +232,6 @@ class _BodyState extends State<Body> {
           await prefs.setBool('merchant', true);
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => homePage()));
-        } else if (snap.value["type"].toString() == "User") {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('merchant', false);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => userHomePage()));
         } else {
           setState(() {
             userLog = true;

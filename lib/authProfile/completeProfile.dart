@@ -7,14 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/login.dart';
-import 'package:shopping/user/userHomePage.dart';
 import 'package:shopping/globalVariable.dart' as global;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shopping/pages/homePage.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../globalVariable.dart';
-import '../merchant/homePage.dart';
 
 class completeProfile extends StatefulWidget {
   @override
@@ -311,13 +309,8 @@ class _completeProfileState extends State<completeProfile> {
       }).catchError((error) {
         print(error.toString());
       });
-      if (merchant) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => homePage()));
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => userHomePage()));
-      }
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => homePage()));
 
       sendUserData();
       setState(() {
@@ -380,13 +373,9 @@ class _completeProfileState extends State<completeProfile> {
         print(error.toString());
       });
       // final User user = (await _auth.signInWithCredential(credential)).user;
-      if (merchant) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => homePage()));
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => userHomePage()));
-      }
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => homePage()));
+
       sendUserData();
       setState(() {
         loading = false;
@@ -703,10 +692,10 @@ class _completeProfileState extends State<completeProfile> {
     }
   }
 
-  // void _showSnackbar() {
-  //   final snackBar = SnackBar(
-  //       backgroundColor: Colors.redAccent,
-  //       content: Text("Fields can't be empty"));
-  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  // }
+// void _showSnackbar() {
+//   final snackBar = SnackBar(
+//       backgroundColor: Colors.redAccent,
+//       content: Text("Fields can't be empty"));
+//   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+// }
 }

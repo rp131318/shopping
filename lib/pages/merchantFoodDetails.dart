@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/merchant/listedFoods.dart';
 import 'package:shopping/globalVariable.dart' as global;
+
+import 'listedFoods.dart';
 
 class merchantFoodDetails extends StatefulWidget {
   @override

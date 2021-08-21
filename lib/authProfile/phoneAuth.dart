@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/user/userHomePage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shopping/merchant/homePage.dart';
 import 'package:shopping/globalVariable.dart';
+import 'package:shopping/pages/homePage.dart';
 
 class phoneAuth extends StatefulWidget {
   @override
@@ -257,13 +256,9 @@ class _phoneAuthState extends State<phoneAuth> {
         print(error.toString());
       });
       // final User user = (await _auth.signInWithCredential(credential)).user;
-      if (merchant) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => homePage()));
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => userHomePage()));
-      }
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => homePage()));
+
       sendData();
     } catch (e) {}
   }
@@ -284,13 +279,8 @@ class _phoneAuthState extends State<phoneAuth> {
         print(error.toString());
       });
       sendData();
-      if (merchant) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => homePage()));
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => userHomePage()));
-      }
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => homePage()));
     };
 
     //Listens for errors with verification, such as too many attempts

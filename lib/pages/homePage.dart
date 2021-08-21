@@ -5,12 +5,13 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shopping/authProfile/completeAllDetails.dart';
 import 'package:shopping/authProfile/completeProfile.dart';
-import 'package:shopping/merchant/listedFoods.dart';
-import 'package:shopping/both/settingPage.dart';
-import 'package:shopping/merchant/merchantFoodDetails.dart';
-import 'package:shopping/merchant/storeListing.dart';
+import 'file:///G:/Food%20Delivery%20App/Shopping-Merchant/lib/pages/settingPage.dart';
 import 'package:shopping/globalVariable.dart';
+import 'package:shopping/pages/storeListing.dart';
+
+import 'listedFoods.dart';
 
 class homePage extends StatefulWidget {
   @override
@@ -623,8 +624,8 @@ class _homePageState extends State<homePage> {
         label: "Complete Now",
         textColor: Colors.white,
         onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => completeProfile()));
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => completeAllDetails()));
         },
       ),
     );
