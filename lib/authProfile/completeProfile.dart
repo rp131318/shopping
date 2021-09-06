@@ -1,17 +1,18 @@
+import 'dart:convert';
 import 'dart:math';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/login.dart';
 import 'package:shopping/globalVariable.dart' as global;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shopping/pages/homePage.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shopping/widget/progressHud.dart';
 import '../globalVariable.dart';
 
 class completeProfile extends StatefulWidget {
@@ -23,8 +24,6 @@ class _completeProfileState extends State<completeProfile> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _verificationId;
-  final SmsAutoFill _autoFill = SmsAutoFill();
-
   final phoneController = TextEditingController();
   final nameController = TextEditingController();
   final address1Controller = TextEditingController();
@@ -38,7 +37,10 @@ class _completeProfileState extends State<completeProfile> {
   final dobController = TextEditingController();
   final favController = TextEditingController();
   final emailController = TextEditingController();
+  final storeNameController = TextEditingController();
+  final areaController = TextEditingController();
   bool loading = false;
+  bool isLoading = false;
   bool otpLoading = false;
   bool isRegister = true; //  false
   StateSetter _setState;
@@ -61,7 +63,7 @@ class _completeProfileState extends State<completeProfile> {
   void initState() {
     final FirebaseAuth auth = FirebaseAuth.instance;
     checkUserData();
-    checkMerchant();
+    // checkMerchant();
     // setState(() {
     //   nameController.text = auth.currentUser.displayName.toString();
     // });
@@ -71,92 +73,174 @@ class _completeProfileState extends State<completeProfile> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.white,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
       statusBarColor: Colors.transparent,
     ));
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18, top: 46),
-                child: Text(
-                  "Account Details",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: ProgressHUD(
+        isLoading: isLoading,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(22),
+                      bottomRight: Radius.circular(22)),
+                  color: colorDark,
+                ),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18, top: 46),
+                        child: Text(
+                          "Merchant Details",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18),
+                        child: Text(
+                          "The section contains of merchant basic details.",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 22,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18),
-                child: Text(
-                  "The section contains of user basic details.",
-                  style: TextStyle(
-                      fontSize: 16, color: grey, fontWeight: FontWeight.bold),
-                ),
+              SizedBox(
+                height: 22,
               ),
-            ),
-            SizedBox(
-              height: 44,
-            ),
-            titleTextField("Full Name", nameController, false),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Email", emailController, false),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Phone Number", phoneController, false),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Address Line 1", address1Controller),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Address Line 2", address2Controller),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField(
-                "Pin Code", pinCodeController, true, TextInputType.number),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("City", cityController),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("State", stateController),
-            SizedBox(
-              height: 12,
-            ),
-            GestureDetector(
-              child: titleTextField("Date of Birth", dobController, false),
-              onTap: () {
-                chooseDate();
-              },
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            Visibility(
-              visible: profileCon,
-              child: Column(
+              // titleTextField("Full Name", nameController, false),
+              // SizedBox(
+              //   height: 12,
+              // ),
+              // titleTextField("Email", emailController, false),
+              // SizedBox(
+              //   height: 12,
+              // ),
+              // titleTextField("Phone Number", phoneController, false),
+              // SizedBox(
+              //   height: 12,
+              // ),
+              titleTextField("Store Name", storeNameController),
+              SizedBox(
+                height: 12,
+              ),
+
+              titleTextField("Store Address", address1Controller),
+              SizedBox(
+                height: 12,
+              ),
+
+              titleTextField(
+                  "Pin Code", pinCodeController, true, TextInputType.number),
+              SizedBox(
+                height: 12,
+              ),
+              titleTextField("City", cityController),
+              SizedBox(
+                height: 12,
+              ),
+              titleTextField("State", stateController),
+
+              // SizedBox(
+              //   height: 12,
+              // ),
+              // Visibility(
+              //   visible: profileCon,
+              //   child: Column(
+              //     children: [
+              //       Align(
+              //         alignment: Alignment.topLeft,
+              //         child: Padding(
+              //           padding: const EdgeInsets.only(left: 18),
+              //           child: Text(
+              //             "Gender",
+              //             style: TextStyle(
+              //                 fontSize: 18,
+              //                 color: grey,
+              //                 fontWeight: FontWeight.bold),
+              //           ),
+              //         ),
+              //       ),
+              //       Container(
+              //         height: 46,
+              //         decoration: BoxDecoration(
+              //             // color: global.colorLight,
+              //             border: Border.all(color: grey, width: 1),
+              //             borderRadius: BorderRadius.circular(8)),
+              //         margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+              //         child: Row(
+              //           children: [
+              //             Radio(
+              //               activeColor: global.colorBlack1,
+              //               value: 1,
+              //               groupValue: id,
+              //               onChanged: (val) {
+              //                 setState(() {
+              //                   radioButtonItem = 'Male';
+              //                   id = 1;
+              //                 });
+              //               },
+              //             ),
+              //             Text(
+              //               'Male',
+              //               style: new TextStyle(
+              //                   fontSize: 17.0, color: global.colorBlack1),
+              //             ),
+              //             Radio(
+              //               activeColor: global.colorBlack1,
+              //               value: 2,
+              //               groupValue: id,
+              //               onChanged: (val) {
+              //                 setState(() {
+              //                   radioButtonItem = 'Female';
+              //                   id = 2;
+              //                 });
+              //               },
+              //             ),
+              //             Text(
+              //               'Female',
+              //               style: new TextStyle(
+              //                   fontSize: 17.0, color: global.colorBlack1),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              SizedBox(
+                height: 12,
+              ),
+
+              Column(
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 18),
                       child: Text(
-                        "Gender",
+                        "Available Food Tags",
                         style: TextStyle(
                             fontSize: 18,
-                            color: grey,
+                            color: global.colorDark,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -169,126 +253,58 @@ class _completeProfileState extends State<completeProfile> {
                         borderRadius: BorderRadius.circular(8)),
                     margin: EdgeInsets.only(left: 18, right: 18, top: 6),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Radio(
-                          activeColor: global.colorBlack1,
-                          value: 1,
-                          groupValue: id,
-                          onChanged: (val) {
-                            setState(() {
-                              radioButtonItem = 'Male';
-                              id = 1;
-                            });
-                          },
-                        ),
-                        Text(
-                          'Male',
-                          style: new TextStyle(
-                              fontSize: 17.0, color: global.colorBlack1),
-                        ),
-                        Radio(
-                          activeColor: global.colorBlack1,
-                          value: 2,
-                          groupValue: id,
-                          onChanged: (val) {
-                            setState(() {
-                              radioButtonItem = 'Female';
-                              id = 2;
-                            });
-                          },
-                        ),
-                        Text(
-                          'Female',
-                          style: new TextStyle(
-                              fontSize: 17.0, color: global.colorBlack1),
-                        ),
+                        Expanded(
+                            flex: 85,
+                            child: Text(
+                              foodTag,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: global.colorBlack1,
+                                fontSize: 18,
+                              ),
+                            )),
+                        Expanded(
+                            flex: 15,
+                            child: IconButton(
+                              onPressed: () {
+                                _showDialog();
+                              },
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                Icons.add_circle_outline_rounded,
+                                color: global.colorDark,
+                                size: 33,
+                              ),
+                            )),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Favourite Food", favController),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18),
-                    child: Text(
-                      "Available Food Tags",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: grey,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                      // color: global.colorLight,
-                      border: Border.all(color: grey, width: 1),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                          flex: 85,
-                          child: Text(
-                            foodTag,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: global.colorBlack1,
-                              fontSize: 18,
-                            ),
-                          )),
-                      Expanded(
-                          flex: 15,
-                          child: IconButton(
-                            onPressed: () {
-                              _showDialog();
-                            },
-                            padding: EdgeInsets.zero,
-                            icon: Icon(
-                              Icons.add_circle_outline_rounded,
-                              color: global.colorDark,
-                              size: 33,
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            InkWell(
-              onTap: () {
-                submitDetails();
-              },
-              child: Container(
-                  width: double.infinity,
-                  height: 46,
-                  decoration: BoxDecoration(
-                      color: global.colorDark,
-                      // border: Border.all(color: global.colorBlack3, width: 2),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin:
-                      EdgeInsets.only(left: 14, right: 14, top: 22, bottom: 22),
-                  child: Center(
-                      child: Text(
-                    "Submit Details",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ))),
-            )
-          ],
+              InkWell(
+                onTap: () {
+                  sendUserData();
+                },
+                child: Container(
+                    width: double.infinity,
+                    height: 46,
+                    decoration: BoxDecoration(
+                        color: global.colorDark,
+                        // border: Border.all(color: global.colorBlack3, width: 2),
+                        borderRadius: BorderRadius.circular(8)),
+                    margin: EdgeInsets.only(
+                        left: 14, right: 14, top: 22, bottom: 22),
+                    child: Center(
+                        child: Text(
+                      "Submit Details",
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ))),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -408,59 +424,129 @@ class _completeProfileState extends State<completeProfile> {
         });
   }
 
-  void sendUserData() {
-    final User user = FirebaseAuth.instance.currentUser;
-    final uid = user.uid.toString();
-    FirebaseDatabase.instance.reference().child("Users").child(uid).update({
-      "name": _auth.currentUser.displayName,
-      "email": _auth.currentUser.email,
-      "phone": phoneController.text,
-      "address1": address1Controller.text,
-      "address2": address2Controller.text,
-      "pincode": pinCodeController.text,
-      "city": cityController.text,
-      "state": stateController.text,
-      "food": foodTag,
-      "fav": favController.text,
-      "dob": dobController.text,
-      "gender": radioButtonItem,
-      "type": userString,
-      "con": 1,
+  Future<void> sendUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String shopId = prefs.getString('shop_id');
+    setState(() {
+      isLoading = true;
     });
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => LoginPage()));
+    print(
+        "shop_id=$shopId&name=${storeNameController.text}&address=${address1Controller.text}&pincode=${pinCodeController.text}&city=${cityController.text}&state=${stateController.text}&area=${areaController.text}&category=$foodTag");
+    get(Config.mainUrl +
+            Config.changeMerchantDetails +
+            "?shop_id=$shopId&name=${storeNameController.text}&address=${address1Controller.text}&pincode=${pinCodeController.text}&city=${cityController.text}&state=${stateController.text}&area=${areaController.text}&category=$foodTag")
+        .then((value) async {
+      print("Edit :: ${value.body}");
+      if (value.body == "done") {
+        global.showSnackbar(
+            context, "Data Changed Successfully...", Colors.green);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginPage()));
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        global.showSnackbar(context, "Error " + value.body, Colors.red);
+        // Navigator.push(
+        //         context, MaterialPageRoute(builder: (context) => LoginPage()));
+      }
+    });
+
+    // final User user = FirebaseAuth.instance.currentUser;
+    // final uid = user.uid.toString();
+    // FirebaseDatabase.instance.reference().child("Users").child(uid).update({
+    //   "name": _auth.currentUser.displayName,
+    //   "email": _auth.currentUser.email,
+    //   "phone": phoneController.text,
+    //   "address1": address1Controller.text,
+    //   "address2": address2Controller.text,
+    //   "pincode": pinCodeController.text,
+    //   "city": cityController.text,
+    //   "state": stateController.text,
+    //   "food": foodTag,
+    //   "fav": favController.text,
+    //   "dob": dobController.text,
+    //   "gender": radioButtonItem,
+    //   "type": userString,
+    //   "con": 1,
+    // });
+    // Navigator.push(
+    //     context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
-  void checkUserData() {
-    FirebaseDatabase.instance
-        .reference()
-        .child("Users")
-        .child(_auth.currentUser.uid)
-        .once()
-        .then((DataSnapshot snap) async {
-      nameController.text = _auth.currentUser.displayName;
-      phoneController.text = snap.value["phone"].toString();
-      emailController.text = _auth.currentUser.email;
-      if (snap.value["con"].toString() == "1") {
-        profileCon = false;
-        address1Controller.text = snap.value["address1"].toString();
-        address2Controller.text = snap.value["address2"].toString();
-        pinCodeController.text = snap.value["pincode"].toString();
-        cityController.text = snap.value["city"].toString();
-        stateController.text = snap.value["state"].toString();
-        dobController.text = snap.value["dob"].toString();
-        favController.text = snap.value["fav"].toString();
-        listedFood = snap.value["food"].toString().split(" | ");
-        listedFood.remove("");
-        for (int i = 0; i < listedFood.length; i++) {
-          foodTagesSelected
-              .add(foodTagesList.indexOf(listedFood[i].toString()));
-        }
-        foodTag = snap.value["food"].toString();
-        print("listedFood :: $listedFood");
+  Future<void> checkUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String shop_id = prefs.getString('shop_id');
+    print("shop Id :: $shop_id");
+    get(Config.mainUrl + Config.getMerchantDetails + "?shop_id=" + shop_id)
+        .then((value) {
+      print("Value :: ${value.body}");
+      final data = jsonDecode(value.body.toString());
+      print("Data :: $data");
+
+      Map<String, dynamic> map = data[0] as Map<String, dynamic>;
+
+      address1Controller.text = map['address'].toString();
+      areaController.text = map['area'].toString();
+      pinCodeController.text = map['pincode'].toString();
+      storeNameController.text = map['name'].toString();
+      stateController.text = map['state'].toString();
+      cityController.text = map['city'].toString();
+      listedFood = map['category'].toString().split(" | ");
+      listedFood.remove("");
+      for (int i = 0; i < listedFood.length; i++) {
+        foodTagesSelected.add(foodTagesList.indexOf(listedFood[i].toString()));
       }
-      setState(() {});
+      foodTag = map['category'].toString();
+      setState(() {
+        print("listedFood :: $listedFood");
+      });
+
+      // add = map['address'].toString() +
+      //     ", " +
+      //     map['area'].toString() +
+      //     ", " +
+      //     map['pincode'].toString();
+      // shopName = map['name'].toString();
+      // state = map['state'].toString();
+      // city = map['city'].toString();
+      // gender = map['gender'].toString();
+      // food = map['category'].toString();
+      // setState(() {
+      //   print("Map :: $map");
+      //   print("city :: $city");
+      // });
     });
+
+    // FirebaseDatabase.instance
+    //     .reference()
+    //     .child("Users")
+    //     .child(_auth.currentUser.uid)
+    //     .once()
+    //     .then((DataSnapshot snap) async {
+    //   nameController.text = _auth.currentUser.displayName;
+    //   phoneController.text = snap.value["phone"].toString();
+    //   emailController.text = _auth.currentUser.email;
+    //   if (snap.value["con"].toString() == "1") {
+    //     profileCon = false;
+    //     address1Controller.text = snap.value["address1"].toString();
+    //     address2Controller.text = snap.value["address2"].toString();
+    //     pinCodeController.text = snap.value["pincode"].toString();
+    //     cityController.text = snap.value["city"].toString();
+    //     stateController.text = snap.value["state"].toString();
+    //     dobController.text = snap.value["dob"].toString();
+    //     favController.text = snap.value["fav"].toString();
+    //     listedFood = snap.value["food"].toString().split(" | ");
+    //     listedFood.remove("");
+    //     for (int i = 0; i < listedFood.length; i++) {
+    //       foodTagesSelected
+    //           .add(foodTagesList.indexOf(listedFood[i].toString()));
+    //     }
+    //     foodTag = snap.value["food"].toString();
+    //     print("listedFood :: $listedFood");
+    //   }
+    //   setState(() {});
+    // });
   }
 
   setupAlertDialoadContainer() {
@@ -613,7 +699,7 @@ class _completeProfileState extends State<completeProfile> {
   }
 
   Widget titleTextField(String s, TextEditingController nameController,
-      [bool enable = true, final keyBoard = TextInputType.text]) {
+      [bool enable = true, final keyBoard = TextInputType.text, int i = 0]) {
     return Column(
       children: [
         Align(
@@ -623,7 +709,7 @@ class _completeProfileState extends State<completeProfile> {
             child: Text(
               s,
               style: TextStyle(
-                  fontSize: 18, color: grey, fontWeight: FontWeight.bold),
+                  fontSize: 18, color: colorDark, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -634,12 +720,13 @@ class _completeProfileState extends State<completeProfile> {
               border: Border.all(color: grey, width: 1),
               borderRadius: BorderRadius.circular(8)),
           margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+          padding: EdgeInsets.only(left: 18),
           child: TextField(
             enabled: enable,
             style: TextStyle(color: global.colorBlack2, fontSize: 18),
             controller: nameController,
             keyboardType: keyBoard,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             cursorColor: global.colorBlack2,
             decoration: new InputDecoration(
                 border: InputBorder.none,
@@ -658,7 +745,7 @@ class _completeProfileState extends State<completeProfile> {
         maxTime: DateTime.now(),
         theme: DatePickerTheme(
             // headerColor: global,
-            backgroundColor: Colors.white,
+            // backgroundColor: Colors.white,
             itemStyle: TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
             cancelStyle: TextStyle(color: Colors.black, fontSize: 16),

@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/auth.dart';
 import 'package:shopping/authProfile/login.dart';
@@ -24,14 +27,16 @@ class _settingPageState extends State<settingPage> {
       state = "--",
       dob = "--",
       fav = "--",
+      shopName = "--",
       gender = "--";
+
   bool merchant = false;
   String userString = "User";
+
   @override
   void initState() {
     // TODO: implement initState
     getData();
-    checkMerchant();
   }
 
   @override
@@ -82,15 +87,12 @@ class _settingPageState extends State<settingPage> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
-              Visibility(
-                visible: merchant,
-                child: Text(
-                  "Merchant Account",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
+              Text(
+                "Merchant Account",
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
               SizedBox(
                 height: 33,
@@ -106,13 +108,14 @@ class _settingPageState extends State<settingPage> {
                       child: Row(
                         children: [
                           Expanded(
-                              flex: 3,
-                              child: Text(
-                                "Phone",
-                                textAlign: TextAlign.left,
-                                style:
-                                    TextStyle(fontSize: 16, color: Colors.grey),
-                              )),
+                            flex: 3,
+                            child: Text(
+                              "Phone",
+                              textAlign: TextAlign.left,
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
+                          ),
                           Expanded(
                               flex: 7,
                               child: Row(
@@ -126,7 +129,7 @@ class _settingPageState extends State<settingPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(left: 6),
                                     child: Text(
-                                      "+91 " + phone,
+                                      _auth.currentUser.phoneNumber,
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 16,
@@ -139,46 +142,39 @@ class _settingPageState extends State<settingPage> {
                       ),
                     ),
                     buildDivider(),
+                    buildProfileText("Shop Name", shopName),
+                    buildDivider(),
                     buildProfileText("Address", add),
                     buildDivider(),
-                    Visibility(
-                      visible: merchant,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 0, left: 22, right: 22),
-                        child: Row(
-                          children: [
-                            Expanded(
-                                flex: 3,
-                                child: Text(
-                                  "Food Category",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey),
-                                )),
-                            Expanded(
-                                flex: 7,
-                                child: Text(
-                                  food,
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                      fontSize: 16, color: global.colorBlack2),
-                                )),
-                          ],
-                        ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 0, left: 22, right: 22),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              flex: 3,
+                              child: Text(
+                                "Food Category",
+                                textAlign: TextAlign.left,
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              )),
+                          Expanded(
+                            flex: 7,
+                            child: Text(
+                              food,
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                  fontSize: 16, color: global.colorBlack2),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Visibility(
-                      visible: merchant,
-                      child: buildDivider(),
-                    ),
+                    buildDivider(),
                     buildProfileText("City", city),
                     buildDivider(),
                     buildProfileText("State", state),
-                    buildDivider(),
-                    buildProfileText("DOB", dob),
-                    buildDivider(),
-                    buildProfileText("Fav. Food", fav),
                     buildDivider(),
                     buildProfileText("Gender", gender),
                     buildDivider(),
@@ -286,28 +282,56 @@ class _settingPageState extends State<settingPage> {
   }
 
   void getData() {
-    FirebaseDatabase.instance
-        .reference()
-        .child("Users")
-        .child(_auth.currentUser.uid)
-        .once()
-        .then((DataSnapshot snap) {
-      Map<dynamic, dynamic> values = snap.value;
-      add = values["address1"].toString() +
-          " " +
-          values["address2"].toString() +
-          " " +
-          values["pincode"].toString();
-      food = values["food"].toString();
-      phone = values["phone"].toString();
-      city = values["city"].toString();
-      dob = values["dob"].toString();
-      fav = values["fav"].toString();
-      state = values["state"].toString();
-      gender = values["gender"].toString();
+    print("shop Id :: $global_shop_id");
+    get(Config.mainUrl +
+            Config.getMerchantDetails +
+            "?shop_id=" +
+            global_shop_id)
+        .then((value) {
+      print("Value :: ${value.body}");
+      final data = jsonDecode(value.body.toString());
+      print("Data :: $data");
+
+      Map<String, dynamic> map = data[0] as Map<String, dynamic>;
+
+      add = map['address'].toString() +
+          ", " +
+          map['area'].toString() +
+          ", " +
+          map['pincode'].toString();
+      shopName = map['name'].toString();
+      state = map['state'].toString();
+      city = map['city'].toString();
+      gender = map['gender'].toString();
+      food = map['category'].toString();
       setState(() {
-        print(food);
+        print("Map :: $map");
+        print("city :: $city");
       });
     });
+
+    // FirebaseDatabase.instance
+    //     .reference()
+    //     .child("Users")
+    //     .child(_auth.currentUser.uid)
+    //     .once()
+    //     .then((DataSnapshot snap) {
+    //   Map<dynamic, dynamic> values = snap.value;
+    //   add = values["address1"].toString() +
+    //       " " +
+    //       values["address2"].toString() +
+    //       " " +
+    //       values["pincode"].toString();
+    //   food = values["food"].toString();
+    //   phone = values["phone"].toString();
+    //   city = values["city"].toString();
+    //   dob = values["dob"].toString();
+    //   fav = values["fav"].toString();
+    //   state = values["state"].toString();
+    //   gender = values["gender"].toString();
+    //   setState(() {
+    //     print(food);
+    //   });
+    // });
   }
 }

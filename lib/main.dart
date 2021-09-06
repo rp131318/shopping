@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // home: completeProfile(),
+      // home: completeAllDetails(),
       home: LoginPage(),
     );
   }

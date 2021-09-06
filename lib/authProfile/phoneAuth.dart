@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shopping/globalVariable.dart';
 import 'package:shopping/pages/homePage.dart';
+import 'package:http/http.dart' as http;
 
 class phoneAuth extends StatefulWidget {
   @override
@@ -23,7 +24,7 @@ class _phoneAuthState extends State<phoneAuth> {
 
   @override
   void initState() {
-    checkMerchant();
+    // checkMerchant();
   }
 
   @override
@@ -149,19 +150,21 @@ class _phoneAuthState extends State<phoneAuth> {
                       });
                     },
                     child: Container(
-                        width: double.infinity,
-                        height: 46,
-                        decoration: BoxDecoration(
-                            color: colorDark,
-                            // border: Border.all(color: global.colorBlack3, width: 2),
-                            borderRadius: BorderRadius.circular(8)),
-                        margin: EdgeInsets.only(
-                            left: 14, right: 14, top: 22, bottom: 22),
-                        child: Center(
-                            child: Text(
-                          "SEND OTP",
+                      width: double.infinity,
+                      height: 46,
+                      decoration: BoxDecoration(
+                          color: colorDark,
+                          // border: Border.all(color: global.colorBlack3, width: 2),
+                          borderRadius: BorderRadius.circular(8)),
+                      margin: EdgeInsets.only(
+                          left: 14, right: 14, top: 22, bottom: 22),
+                      child: Center(
+                        child: Text(
+                          "Verify",
                           style: TextStyle(fontSize: 18, color: Colors.white),
-                        ))),
+                        ),
+                      ),
+                    ),
                   ),
                   Padding(
                     padding:
@@ -326,15 +329,33 @@ class _phoneAuthState extends State<phoneAuth> {
     setState(() {});
   }
 
-  void sendData() {
-    final User user = FirebaseAuth.instance.currentUser;
-    final uid = user.uid.toString();
-    FirebaseDatabase.instance.reference().child("Users").child(uid).update({
-      "name": _auth.currentUser.displayName,
+  Future<void> sendData() async {
+    await http.post(Config.mainUrl + Config.checkProfileUrl, body: {
       "email": _auth.currentUser.email,
-      "phone": phoneController.text,
-      "type": userString,
-      "con": 0
+    }).then((value) async {
+      await print("exist or not :: ${value.body}");
+      if (value.body == "dontexist") {
+        await http.post(Config.mainUrl + Config.userInsertUrl, body: {
+          "email": _auth.currentUser.email,
+          "phonenumber": phoneController.text,
+          "storeid": "0",
+        }).then((value) {
+          print("Responce User :: ${value.body}");
+        });
+      }
     });
+    print("Data Sended....");
   }
+
+// void sendData() {
+//   final User user = FirebaseAuth.instance.currentUser;
+//   final uid = user.uid.toString();
+//   FirebaseDatabase.instance.reference().child("Users").child(uid).update({
+//     "name": _auth.currentUser.displayName,
+//     "email": _auth.currentUser.email,
+//     "phone": phoneController.text,
+//     "type": userString,
+//     "con": 0
+//   });
+// }
 }

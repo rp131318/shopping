@@ -1,17 +1,18 @@
 import 'dart:ui';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/completeAllDetails.dart';
 import 'package:shopping/authProfile/completeProfile.dart';
 import 'file:///G:/Food%20Delivery%20App/Shopping-Merchant/lib/pages/settingPage.dart';
 import 'package:shopping/globalVariable.dart';
 import 'package:shopping/pages/storeListing.dart';
-
+import 'package:http/http.dart' as http;
 import 'listedFoods.dart';
+import 'orderManagement.dart';
 
 class homePage extends StatefulWidget {
   @override
@@ -21,6 +22,8 @@ class homePage extends StatefulWidget {
 class _homePageState extends State<homePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool profileCon = false;
+
+  String shopId;
 
   @override
   void initState() {
@@ -154,6 +157,14 @@ class _homePageState extends State<homePage> {
                             },
                             child: buildCard(
                                 "Listed Food", ImageLink.listedFoodImage),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => orderManagement()));
+                            },
+                            child: buildCard("Order Management",
+                                ImageLink.orderManagementImage),
                           ),
                         ],
                       ),
@@ -602,16 +613,28 @@ class _homePageState extends State<homePage> {
   }
 
   Future<void> checkProfileCon() async {
-    final User user = FirebaseAuth.instance.currentUser;
-    final uid = user.uid.toString();
-    FirebaseDatabase.instance
-        .reference()
-        .child("Users")
-        .child(uid)
-        .once()
-        .then((DataSnapshot snap) {
-      if (snap.value["con"].toString() == "1") {
+    print("Email :: ${_auth.currentUser.email}");
+
+    http
+        .get(Config.mainUrl +
+            Config.profileCompletedUrl +
+            "?email=" +
+            _auth.currentUser.email)
+        .then((value) {
+      print("User Condition  :: ${value.body}");
+      shopId = value.body;
+      global_shop_id = shopId;
+      if ((value.body != "0") && (value.body != "No results")) {
         profileCon = true;
+        http
+            .get(Config.mainUrl + Config.getCat + "?shopid=" + shopId)
+            .then((value) async {
+          print("category ID  :: ${value.body}");
+          global_cat_id = value.body.toString();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('cat_id', value.body);
+          await prefs.setString('shop_id', shopId);
+        });
       }
     });
   }

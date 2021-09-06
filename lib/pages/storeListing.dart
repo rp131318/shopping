@@ -1,18 +1,15 @@
 import 'dart:io';
-
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/globalVariable.dart';
 import 'package:shopping/globalVariable.dart' as global;
+import 'package:shopping/widget/progressHud.dart';
 import 'homePage.dart';
 
 // ignore: camel_case_types
@@ -38,7 +35,7 @@ class _storeListingState extends State<storeListing> {
   final picker = ImagePicker();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String link;
-  String _unit = "Gram";
+  String _unit = "Kg";
   String dropdownValueCate = "Click to Select";
   String dropdownValueMeas = "Kg";
   String milli = DateTime.now().millisecondsSinceEpoch.toString();
@@ -53,6 +50,7 @@ class _storeListingState extends State<storeListing> {
   var qntGm = ["250", "500", "750", "1000"];
   var qntGmCus = [];
   var qntPrice = [];
+  bool isLoading = false;
 
   @override
   void initState() {}
@@ -65,294 +63,309 @@ class _storeListingState extends State<storeListing> {
       statusBarColor: Colors.transparent,
     ));
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      body: ProgressHUD(
+        isLoading: isLoading,
+        child: Stack(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(22),
-                    bottomRight: Radius.circular(22)),
-                color: colorDark,
-              ),
+            SingleChildScrollView(
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 18, top: 46),
-                      child: Text(
-                        "Food Details",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
-                      ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(22),
+                          bottomRight: Radius.circular(22)),
+                      color: colorDark,
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 18),
-                      child: Text(
-                        "We need food details to list your food.",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18, top: 46),
+                            child: Text(
+                              "Food Details",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                      ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 18),
+                            child: Text(
+                              "We need food details to list your food.",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 22,
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(
                     height: 22,
                   ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 22,
-            ),
-            titleTextField("Product Name", nameController),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18),
-                    child: Text(
-                      "Measurement",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: colorDark,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  titleTextField("Product Name", nameController),
+                  SizedBox(
+                    height: 12,
                   ),
-                ),
-                radioButtonOfMeasurement()
-              ],
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField(
-                "GST Rate %", gstController, true, TextInputType.number),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("HSN Code/SAC Code", hsnCodeController),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField("Product Price", priceController, true,
-                TextInputType.number, 1),
-            SizedBox(
-              height: 12,
-            ),
-            radioButton(),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18),
-                    child: Text(
-                      "Quantity Details",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: colorDark,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 18),
+                          child: Text(
+                            "Measurement",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: colorDark,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      radioButtonOfMeasurement()
+                    ],
                   ),
-                ),
-                Container(
-                  // height: 156,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      // color: global.colorLight,
-                      border: Border.all(color: grey, width: 1),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                  child: measDetails(),
-                ),
-              ],
-            ),
-            Visibility(
-              visible: cusPriceV,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18, top: 6),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(
-                                    "Food pricing can't be set more than 10 % of actual rate."),
-                                content: setupAlertDialoadUnits(),
-                              );
-                            });
-                      },
-                      child: Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: colorDark,
+                  SizedBox(
+                    height: 12,
+                  ),
+                  titleTextField(
+                      "GST Rate %", gstController, true, TextInputType.number),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  titleTextField("HSN Code/SAC Code", hsnCodeController),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  titleTextField("Product Price", priceController, true,
+                      TextInputType.number, 1),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  radioButton(),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 18),
+                          child: Text(
+                            "Quantity Details",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: colorDark,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        // height: 156,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            // color: global.colorLight,
+                            border: Border.all(color: grey, width: 1),
+                            borderRadius: BorderRadius.circular(8)),
+                        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                        child: measDetails(),
+                      ),
+                    ],
+                  ),
+                  Visibility(
+                    visible: cusPriceV,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18, top: 6),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                          "Food pricing can't be set more than 10 % of actual rate."),
+                                      content: setupAlertDialoadUnits(),
+                                    );
+                                  });
+                            },
+                            child: Icon(
+                              Icons.add_circle_outline_rounded,
+                              color: colorDark,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 6,
+                          ),
+                          Text("Add customize pricing and quantity"),
+                        ],
                       ),
                     ),
-                    SizedBox(
-                      width: 6,
-                    ),
-                    Text("Add customize pricing and quantity"),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            titleTextField(
-                "Product Instruction/Description", productDisController),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18),
-                    child: Row(
-                      children: [
-                        Text(
-                          "Product Category",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: colorDark,
-                              fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  titleTextField(
+                      "Product Instruction/Description", productDisController),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 18),
+                          child: Row(
+                            children: [
+                              Text(
+                                "Product Category",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: colorDark,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                      Container(
+                        height: 46,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            // color: global.colorLight,
+                            border: Border.all(color: grey, width: 1),
+                            borderRadius: BorderRadius.circular(8)),
+                        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                        child: buildDropdownButtonCate(),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                            value: tax,
+                            activeColor: global.colorDark,
+                            onChanged: (value) {
+                              setState(() {
+                                tax = value;
+                                if (!tax &&
+                                    priceController.text.length > 0 &&
+                                    gstController.text.length > 0) {
+                                  double _tax = 0;
+                                  _tax = (double.parse(priceController.text) *
+                                          double.parse(gstController.text)) /
+                                      100;
+                                  cGstController.text =
+                                      (_tax / 2).toString() + rupees;
+                                  sGstController.text =
+                                      (_tax / 2).toString() + rupees;
+                                }
+                              });
+                              print("value :: $value");
+                            }),
+                        Text("Including all tax"),
                       ],
                     ),
                   ),
-                ),
-                Container(
-                  height: 46,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      // color: global.colorLight,
-                      border: Border.all(color: grey, width: 1),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                  child: buildDropdownButtonCate(),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Checkbox(
-                      value: tax,
-                      activeColor: global.colorDark,
-                      onChanged: (value) {
-                        setState(() {
-                          tax = value;
-                          if (!tax &&
-                              priceController.text.length > 0 &&
-                              gstController.text.length > 0) {
-                            double _tax = 0;
-                            _tax = (double.parse(priceController.text) *
-                                    double.parse(gstController.text)) /
-                                100;
-                            cGstController.text =
-                                (_tax / 2).toString() + rupees;
-                            sGstController.text =
-                                (_tax / 2).toString() + rupees;
-                          }
-                        });
-                        print("value :: $value");
-                      }),
-                  Text("Including all tax"),
+                  Visibility(
+                    visible: !tax,
+                    child: titleTextField("SGST", sGstController, false),
+                  ),
+                  Visibility(
+                    visible: !tax,
+                    child: SizedBox(
+                      height: 12,
+                    ),
+                  ),
+                  Visibility(
+                    visible: !tax,
+                    child: titleTextField("CGST", cGstController, false),
+                  ),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 18),
+                          child: Text(
+                            "Upload Image",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: colorDark,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          chooseImage();
+                        },
+                        child: Card(
+                          margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+                          semanticContainer: true,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: _image == null
+                              ? Image.asset(
+                                  "images/foodim2.jpg",
+                                )
+                              : Image.file(_image),
+                        ),
+                      )
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () {
+                      listFoodNow();
+                    },
+                    // child: Padding(
+                    //   padding: const EdgeInsets.all(18.0),
+                    //   child: CircularProgressIndicator(
+                    //     valueColor: new AlwaysStoppedAnimation<Color>(colorDark),
+                    //   ),
+                    // ),
+                    child: Container(
+                      width: double.infinity,
+                      height: 46,
+                      decoration: BoxDecoration(
+                          color: global.colorDark,
+                          // border: Border.all(color: global.colorBlack3, width: 2),
+                          borderRadius: BorderRadius.circular(8)),
+                      margin: EdgeInsets.only(
+                          left: 14, right: 14, top: 44, bottom: 22),
+                      child: Center(
+                        child: Text(
+                          "List Food Now",
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
-            Visibility(
-              visible: !tax,
-              child: titleTextField("SGST", sGstController, false),
-            ),
-            Visibility(
-              visible: !tax,
-              child: SizedBox(
-                height: 12,
-              ),
-            ),
-            Visibility(
-              visible: !tax,
-              child: titleTextField("CGST", cGstController, false),
-            ),
-            SizedBox(
-              height: 12,
-            ),
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 18),
-                    child: Text(
-                      "Upload Image",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: colorDark,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    chooseImage();
-                  },
-                  child: Card(
-                    margin: EdgeInsets.only(left: 18, right: 18, top: 6),
-                    semanticContainer: true,
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    child: _image == null
-                        ? Image.asset(
-                            "images/foodim2.jpg",
-                          )
-                        : Image.file(_image),
-                  ),
-                )
-              ],
-            ),
-            InkWell(
-              onTap: () {
-                listFoodNow();
-              },
-              child: Container(
-                  width: double.infinity,
-                  height: 46,
-                  decoration: BoxDecoration(
-                      color: global.colorDark,
-                      // border: Border.all(color: global.colorBlack3, width: 2),
-                      borderRadius: BorderRadius.circular(8)),
-                  margin:
-                      EdgeInsets.only(left: 14, right: 14, top: 44, bottom: 22),
-                  child: Center(
-                      child: Text(
-                    "List Food Now",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ))),
-            )
           ],
         ),
       ),
@@ -433,10 +446,13 @@ class _storeListingState extends State<storeListing> {
         hsnCodeController.text.length > 0 &&
         dropdownValueCate != "Click to Select" &&
         _image.path.toString().length > 0) {
-      final snackBar = SnackBar(
-          backgroundColor: Colors.green,
-          content: Text("Food listing complete"));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      // final snackBar = SnackBar(
+      //     backgroundColor: Colors.green,
+      //     content: Text("Food listing complete"));
+      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      setState(() {
+        isLoading = true;
+      });
       uploadImage();
     } else {
       final snackBar = SnackBar(
@@ -475,37 +491,101 @@ class _storeListingState extends State<storeListing> {
     // });
   }
 
-  void sendInfo(String link) {
-    print("Link :: $link");
-    FirebaseDatabase.instance
-        .reference()
-        .child("Listed Food")
-        .child(_auth.currentUser.uid)
-        .child(milli)
-        .update({
-      "n": nameController.text,
-      "p": priceController.text,
-      "unit": dropdownValueMeas,
-      "sgst": sGstController.text,
-      "cgst": cGstController.text,
-      "gst": gstController.text,
-      "cat": dropdownValueCate,
-      "i": link.toString()
+  // $product_name=$_POST['product_name'];
+  // $measurement=$_POST['measurement'];
+  // $gst_percent=$_POST['gst_percent'];
+  // $sac_code=$_POST['sac_code'];
+  // $price=$_POST['price'];
+  // $product_desc=$_POST['product_desc'];
+  // $cat_id=(int)$_POST['cat_id'];
+  // $product_image=$_POST['product_image'];
+  // $currentDateTime = date('Y-m-d H:i:s');
+
+  Future<void> sendInfo(String link) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String cat_id = prefs.getString('cat_id');
+    String shop_id = prefs.getString('shop_id');
+    print("cat_id :: $cat_id");
+    print("Qnt :: $qntGmCus\nQnt Price :: $qntPrice");
+    print("Meas :: $_unit");
+    print("Image link :: $link");
+    print(
+        "Qnt :: ${removeLastAndFirst(qntGmCus.toString())}\nQnt Price :: ${removeLastAndFirst(qntPrice.toString())}");
+    await http.post(Config.mainUrl + Config.insertProducts, body: {
+      "product_name": nameController.text,
+      "measurement": _unit,
+      "gst_percent": gstController.text,
+      "sac_code": hsnCodeController.text,
+      "price": priceController.text,
+      "product_desc": productDisController.text,
+      "cat_id": cat_id,
+      "shop_id": shop_id,
+      "pr_image": link.toString(),
+      "product_cat": dropdownValueCate,
+      "qnt": removeLastAndFirst(qntGmCus.toString()),
+      "qnt_price": removeLastAndFirst(qntPrice.toString()),
+    }).then((value) {
+      print("Response Store Listing :: ${value.body}");
+      if (value.body == "done") {
+        // nameController.clear();
+        // priceController.clear();
+        // sGstController.clear();
+        // cGstController.clear();
+        // gstController.clear();
+        // cateController.clear();
+        // expController.clear();
+        // hsnCodeController.clear();
+        // locController.clear();
+        // popPriceController.clear();
+        // popQntController.clear();
+        // productDisController.clear();
+        // showSnackbar(context, "Product Uploaded.", Colors.green);
+        // setState(() {
+        //   isLoading = false;
+        // });
+        showSnackbar(context, "File Uploaded Successfully", Colors.lightGreen);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => homePage()));
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        showSnackbar(context, value.body, Colors.red);
+      }
     });
-    if (id == 2) {
-      FirebaseDatabase.instance
-          .reference()
-          .child("Listed Food")
-          .child(_auth.currentUser.uid)
-          .child(milli)
-          .update({
-        "qnt": removeLastAndFirst(qntGmCus.toString()),
-        "qntPrice": removeLastAndFirst(qntPrice.toString()),
-      });
-    }
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => homePage()));
   }
+
+  // void sendInfo(String link) {
+  //   print("Link :: $link");
+  //   FirebaseDatabase.instance
+  //       .reference()
+  //       .child("Listed Food")
+  //       .child(_auth.currentUser.uid)
+  //       .child(milli)
+  //       .update({
+  //     "n": nameController.text,
+  //     "p": priceController.text,
+  //     "unit": dropdownValueMeas,
+  //     "sgst": sGstController.text,
+  //     "cgst": cGstController.text,
+  //     "gst": gstController.text,
+  //     "cat": dropdownValueCate,
+  //     "i": link.toString()
+  //   });
+  //   if (id == 2) {
+  //     FirebaseDatabase.instance
+  //         .reference()
+  //         .child("Listed Food")
+  //         .child(_auth.currentUser.uid)
+  //         .child(milli)
+  //         .update({
+  //       "qnt": removeLastAndFirst(qntGmCus.toString()),
+  //       "qntPrice": removeLastAndFirst(qntPrice.toString()),
+  //     });
+  //   }
+  //   Navigator.of(context)
+  //       .push(MaterialPageRoute(builder: (context) => homePage()));
+  // }
 
   Widget titleTextField(String s, TextEditingController nameController,
       [bool enable = true, final keyBoard = TextInputType.text, int i = 0]) {
@@ -792,7 +872,7 @@ class _storeListingState extends State<storeListing> {
                   setState(() {
                     radioButtonItemMeas = 'KG Kilogram';
                     idMeas = 1;
-                    _unit = "Gram";
+                    _unit = "Kg";
                     qntGm = ["250", "500", "750", "1000"];
                   });
                 },

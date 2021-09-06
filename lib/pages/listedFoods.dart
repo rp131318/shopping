@@ -1,12 +1,14 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/globalVariable.dart' as global;
-
+import '../globalVariable.dart';
 import 'merchantFoodDetails.dart';
 
 class listedFoods extends StatefulWidget {
@@ -24,10 +26,14 @@ class _listedFoodsState extends State<listedFoods> {
   var e = [];
   var c = [];
   var unit = [];
+  var gst = [];
+  var hsc = [];
+  var des = [];
 
   @override
   void initState() {
     getListedFood();
+    super.initState();
   }
 
   @override
@@ -50,7 +56,7 @@ class _listedFoodsState extends State<listedFoods> {
                 style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: global.colorBlack5),
+                    color: colorBlack5),
               ),
             ),
           ),
@@ -75,60 +81,109 @@ class _listedFoodsState extends State<listedFoods> {
   }
 
   Future<void> getListedFood() async {
-    product.clear();
-    c.clear();
-    e.clear();
-    im.clear();
-    l.clear();
-    n.clear();
-    p.clear();
-    await FirebaseDatabase.instance
-        .reference()
-        .child("Listed Food")
-        .child(_auth.currentUser.uid)
-        .once()
-        .then((DataSnapshot snap) {
-      Map<dynamic, dynamic> values = snap.value;
-      values.forEach((key, value) async {
-        product.add(key);
-      });
-      print("Product :: $product");
-      getProductDetails();
+    print("Cat Id :: $global_cat_id");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String shop_id = prefs.getString('shop_id');
+    get(Config.mainUrl + Config.merchantProductsUrl + "?shop_id=" + shop_id)
+        .then((value) {
+      // print("Merchant Products :: ${value.body}");
+
+      final data = jsonDecode(value.body.toString());
+      // print("Map :: ${data}");
+
+      // var obj = JSON.parse(json);
+      // var length = Object.keys(data).length; //you get length json result 4
+      // data.then((onValue) {
+      //   if (onValue != null) {
+      //     onValue.data.forEach((k, v) {
+      //       // add .data here
+      //       // print(onValue['AED']);
+      //       print('$k,$v');
+      //     });
+      //   }
+      // });
+
+      // Map<String, String> map =
+      //     jsonDecode(value.body.toString()) as Map<String, String>;
+      // print("Map :: $map");
+      // int len = 0;
+      // try {
+      //   while (data[len] != null) {
+      //     len++;
+      //   }
+      //   // print("Len :: $len");
+      // } catch (e) {
+      //   print("Len Catch :: $len");
+      // }
+
+      var dd = getJsonLength(data);
+      print("DD :: $dd");
+
+      for (int i = 0; i < dd; i++) {
+        Map<String, dynamic> map = data[i] as Map<String, dynamic>;
+        print("Map :: $map");
+        c.add(map["pr_category"].toString());
+        // e.add(map["e"].toString());
+        im.add(map["product_image"].toString());
+        // l.add(map["l"].toString());
+        n.add(map["product_name"].toString());
+        p.add(map["price"].toString());
+        unit.add(map["measurement"].toString());
+        gst.add(map["gst_percent"].toString());
+        hsc.add(map["sac_code"].toString());
+        product.add(map["id"].toString());
+        des.add(map["product_desc"].toString());
+
+        // map.forEach((key, value) {
+        //   print("--------------------------------");
+        //   print("key :: $key \nValue :: $value");
+        //   print("--------------------------------");
+        // });
+        if (i == dd - 1) {
+          setState(() {
+            print("C :: $c");
+            print("I :: $im");
+            print("N :: $n");
+            print("P :: $p");
+            print("unit :: $unit");
+          });
+        }
+      }
     });
   }
 
-  Future<void> getProductDetails() async {
-    for (int i = 0; i < product.length; i++) {
-      await FirebaseDatabase.instance
-          .reference()
-          .child("Listed Food")
-          .child(_auth.currentUser.uid)
-          .child(product[i].toString())
-          .once()
-          .then((DataSnapshot snap) {
-        Map<dynamic, dynamic> values = snap.value;
-        c.add(values["c"].toString());
-        e.add(values["e"].toString());
-        im.add(values["i"].toString());
-        l.add(values["l"].toString());
-        n.add(values["n"].toString());
-        p.add(values["p"].toString());
-        unit.add(values["unit"].toString());
-        // print(c);
-      });
-      if (i == product.length - 1) {
-        setState(() {
-          print("C :: $c");
-          print("E :: $e");
-          print("I :: $im");
-          print("L :: $l");
-          print("N :: $n");
-          print("P :: $p");
-          print("unit :: $unit");
-        });
-      }
-    }
-  }
+  // Future<void> getProductDetails() async {
+  //   for (int i = 0; i < product.length; i++) {
+  //     await FirebaseDatabase.instance
+  //         .reference()
+  //         .child("Listed Food")
+  //         .child(_auth.currentUser.uid)
+  //         .child(product[i].toString())
+  //         .once()
+  //         .then((DataSnapshot snap) {
+  //       Map<dynamic, dynamic> values = snap.value;
+  //       c.add(values["c"].toString());
+  //       e.add(values["e"].toString());
+  //       im.add(values["i"].toString());
+  //       l.add(values["l"].toString());
+  //       n.add(values["n"].toString());
+  //       p.add(values["p"].toString());
+  //       unit.add(values["unit"].toString());
+  //       // print(c);
+  //     });
+  //     if (i == product.length - 1) {
+  //       setState(() {
+  //         print("C :: $c");
+  //         print("E :: $e");
+  //         print("I :: $im");
+  //         print("L :: $l");
+  //         print("N :: $n");
+  //         print("P :: $p");
+  //         print("unit :: $unit");
+  //       });
+  //     }
+  //   }
+  // }
 
   Widget gridOfFood() {
     return p.length > 0
@@ -147,13 +202,16 @@ class _listedFoodsState extends State<listedFoods> {
                       await prefs.setString('foodPrice', p[index].toString());
                       await prefs.setString(
                           'foodCategory', c[index].toString());
+                      // await prefs.setString('foodImage',
+                      //     "https://media.self.com/photos/60c24d1e82f971325a0a6ebd/4:3/w_384/bowl-rice-vegetables.jpg");
                       await prefs.setString('foodImage', im[index].toString());
-                      await prefs.setString(
-                          'foodLocation', l[index].toString());
-                      await prefs.setString('foodExp', e[index].toString());
+                      await prefs.setString('gst', gst[index]);
+                      // await prefs.setString('foodExp', "No Data");
                       await prefs.setString('unit', unit[index].toString());
-                      await prefs.setString(
-                          'foodKey', product[index].toString());
+                      await prefs.setString('hsc', hsc[index].toString());
+                      await prefs.setString('id', product[index].toString());
+                      await prefs.setString('des', des[index].toString());
+
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => merchantFoodDetails()));
                     },
@@ -195,7 +253,7 @@ class _listedFoodsState extends State<listedFoods> {
                                 style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: global.colorBlack5),
+                                    color: colorBlack5),
                               ),
                             ),
                           ),
@@ -211,7 +269,7 @@ class _listedFoodsState extends State<listedFoods> {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: global.colorDark),
+                                    color: colorDark),
                               ),
                             ),
                           ),
@@ -221,28 +279,7 @@ class _listedFoodsState extends State<listedFoods> {
                   );
                 })),
           )
-        : Center(
-            child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            margin: EdgeInsets.only(top: 222),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    valueColor:
-                        new AlwaysStoppedAnimation<Color>(global.colorDark),
-                  ),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  Text("Loading your listed foods..."),
-                ],
-              ),
-            ),
-          ));
+        : showLoading("Loading your listed foods...");
   }
 
   Widget bottom() {
@@ -253,7 +290,7 @@ class _listedFoodsState extends State<listedFoods> {
               height: 66,
               width: 166,
               child: Card(
-                  color: global.colorDark,
+                  color: colorDark,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(12),

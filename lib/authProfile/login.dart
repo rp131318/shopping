@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/authProfile/phoneAuth.dart';
 import 'package:shopping/pages/homePage.dart';
+import '../globalVariable.dart';
 import 'auth.dart';
 import 'dart:math';
+import 'package:http/http.dart' as http;
 import 'package:shopping/globalVariable.dart' as global;
 
 class LoginPage extends StatelessWidget {
@@ -42,18 +44,20 @@ class _BodyState extends State<Body> {
   }
 
   Future<void> click() async {
-    setState(() {
-      loading = true;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // int counter = (prefs.getInt('counter') ?? 0) + 1;
-    // print('Pressed $counter times.');
-    await prefs.setBool('merchant', merchant);
-
-    signInWithGoogle().then((user) => {
+    signInWithGoogle().then((user) async => {
           this.user = user,
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => phoneAuth())),
+          await http.post(Config.mainUrl + Config.checkProfileUrl, body: {
+            "email": user.email.toString(),
+          }).then((value) async {
+            await print("exist or not :: ${value.body}");
+            if (value.body == "dontexist") {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => phoneAuth()));
+            } else {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => homePage()));
+            }
+          }),
           print(user)
         });
   }
@@ -220,28 +224,15 @@ class _BodyState extends State<Body> {
 
   Future<void> checkUser() async {
     final User user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await FirebaseDatabase.instance
-          .reference()
-          .child("Users")
-          .child(_auth.currentUser.uid)
-          .once()
-          .then((DataSnapshot snap) async {
-        if (snap.value["type"].toString() == "Merchant") {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('merchant', true);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => homePage()));
-        } else {
-          setState(() {
-            userLog = true;
-          });
-        }
-      });
-    } else {
-      setState(() {
-        userLog = true;
-      });
-    }
+    Future.delayed(const Duration(milliseconds: 333), () {
+      if (user != null) {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => homePage()));
+      } else {
+        setState(() {
+          userLog = true;
+        });
+      }
+    });
   }
 }

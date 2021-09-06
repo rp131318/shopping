@@ -5,9 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/globalVariable.dart' as global;
-
+import 'package:shopping/widget/progressHud.dart';
+import '../globalVariable.dart';
 import 'listedFoods.dart';
 
 class merchantFoodDetails extends StatefulWidget {
@@ -15,6 +17,7 @@ class merchantFoodDetails extends StatefulWidget {
   _merchantFoodDetailsState createState() => _merchantFoodDetailsState();
 }
 
+// ignore: camel_case_types
 class _merchantFoodDetailsState extends State<merchantFoodDetails> {
   String name = "--",
       price = "--",
@@ -22,6 +25,9 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
       exp = "--",
       image,
       location = "--",
+      gst = "--",
+      hsc = "--",
+      des = "--",
       productKey;
   String changeField = "name";
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,19 +41,21 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
   double popHeight;
   StateSetter _setState;
   String _key, unit;
+  bool isLoading = false;
 
-  var list = ["Name", "Price", "Food Category", "Food Expiry", "Location"];
+  var list = ["Name", "Price", "Food Category", "Food Description", "GST Rate"];
   var subList = [
     "Change food name",
     "Change food price",
     "Change food category",
-    "Change food expiry",
-    "Change food location"
+    "Change food description",
+    "Change food GST Rate",
   ];
 
   @override
   void initState() {
     getData();
+    super.initState();
   }
 
   @override
@@ -58,150 +66,178 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
       statusBarColor: Colors.transparent,
     ));
     return Scaffold(
-      body: location != "--"
-          ? Column(
+        body: ProgressHUD(
+      isLoading: isLoading,
+      child: Column(
+        children: [
+          Card(
+            semanticContainer: true,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            elevation: 0,
+            margin: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(33),
+                    bottomLeft: Radius.circular(33))),
+            child: Image.network(
+              image,
+              height: 244,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Flexible(
+            child: ListView(
               children: [
-                Card(
-                  semanticContainer: true,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  elevation: 0,
-                  margin: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(33),
-                          bottomLeft: Radius.circular(33))),
-                  child: Image.network(
-                    image,
-                    height: 244,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                Padding(
+                  padding: const EdgeInsets.only(left: 28, top: 20),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorBlack5),
+                    ),
                   ),
                 ),
-                Flexible(
-                  child: ListView(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 28, top: 20),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            name,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: global.colorBlack5),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 28, top: 8),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(
-                            '\u{20B9} ' + price + "/" + unit,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: global.colorDark),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: ListTile(
-                          horizontalTitleGap: 0,
-                          title: Text(
-                            "Location",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: global.colorBlack5),
-                          ),
-                          subtitle: Text(
-                            location,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                          leading: Icon(
-                            Icons.location_on_rounded,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: ListTile(
-                          horizontalTitleGap: 0,
-                          title: Text(
-                            "Food Category",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: global.colorBlack5),
-                          ),
-                          subtitle: Text(
-                            cat,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                          leading: Icon(
-                            Icons.category_rounded,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: ListTile(
-                          horizontalTitleGap: 0,
-                          title: Text(
-                            "Food Expiry",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: global.colorBlack5),
-                          ),
-                          subtitle: Text(
-                            exp,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                          leading: Icon(
-                            Icons.watch_later_rounded,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 28, top: 8),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      '\u{20B9} ' + price + "/" + unit,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorDark),
+                    ),
                   ),
                 ),
-                bottom(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: ListTile(
+                    horizontalTitleGap: 0,
+                    title: Text(
+                      "GST Rate",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorBlack5),
+                    ),
+                    subtitle: Text(
+                      gst + "%",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    leading: Icon(
+                      Icons.account_balance,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: ListTile(
+                    horizontalTitleGap: 0,
+                    title: Text(
+                      "HSN/SAC Code",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorBlack5),
+                    ),
+                    subtitle: Text(
+                      hsc,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    leading: Icon(
+                      Icons.code_rounded,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: ListTile(
+                    horizontalTitleGap: 0,
+                    title: Text(
+                      "Food Category",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorBlack5),
+                    ),
+                    subtitle: Text(
+                      cat,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    leading: Icon(
+                      Icons.category_rounded,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: ListTile(
+                    horizontalTitleGap: 0,
+                    title: Text(
+                      "Quantity Details",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: global.colorBlack5),
+                    ),
+                    subtitle: Text(
+                      "Standard",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    leading: Icon(
+                      Icons.equalizer_outlined,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
               ],
-            )
-          : loading(),
-    );
+            ),
+          ),
+          bottom(),
+        ],
+      ),
+    ));
   }
 
   Future<void> getData() async {
@@ -214,6 +250,10 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
     location = prefs.getString("foodLocation");
     productKey = prefs.getString("foodKey");
     unit = prefs.getString("unit");
+    gst = prefs.getString("gst");
+    hsc = prefs.getString("hsc");
+    productKey = prefs.getString("id");
+    des = prefs.getString("des");
     setState(() {
       print(location);
       print("productKey $productKey");
@@ -304,6 +344,8 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
                   child: FlatButton(
                     splashColor: global.colorDark,
                     onPressed: () {
+                      // global.showSnackbar(
+                      //     context, "Feature Coming Soon", Colors.grey);
                       _showDialog();
                     },
                     shape: RoundedRectangleBorder(
@@ -396,11 +438,12 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
                   child: TextField(
                     style: TextStyle(color: global.colorBlack2, fontSize: 18),
                     controller: nameController,
-                    keyboardType: changeField == "Price"
-                        ? TextInputType.number
-                        : changeField == "Food Expiry"
-                            ? TextInputType.datetime
-                            : TextInputType.text,
+                    keyboardType:
+                        changeField == "Price" || changeField == "GST Rate"
+                            ? TextInputType.number
+                            : changeField == "Food Expiry"
+                                ? TextInputType.datetime
+                                : TextInputType.text,
                     textAlign: TextAlign.center,
                     cursorColor: Colors.white,
                     decoration: new InputDecoration(
@@ -419,16 +462,31 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
                       splashColor: global.colorDark,
                       onPressed: () {
                         if (nameController.text.length > 0) {
-                          updateFiled(nameController.text, changeField);
+                          // updateFiled(nameController.text, changeField);
+
+                          switch (changeField) {
+                            case "Name":
+                              name = nameController.text;
+                              break;
+                            case "Price":
+                              price = nameController.text;
+                              break;
+                            case "Food Category":
+                              cat = nameController.text;
+                              break;
+                            case "GST Rate":
+                              gst = nameController.text;
+                              break;
+                            case "Food Description":
+                              des = nameController.text;
+                              break;
+                          }
+                          updateDataBase();
                           nameController.clear();
                           Navigator.pop(context);
-                          global.showSnackbar(context,
-                              "Data Changed Successfully...", Colors.green);
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => listedFoods()),
-                              ModalRoute.withName("/Home"));
+                          // global.showSnackbar(context,
+                          //     "Data Changed Successfully...", Colors.green);
+
                         }
                       },
                       shape: RoundedRectangleBorder(
@@ -450,21 +508,49 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
     );
   }
 
-  void updateFiled(String text, String changeField) {
-    if (changeField.split(" ").length > 1) {
-      _key = changeField.split(" ")[1].substring(0, 1).toLowerCase();
-      print("Key11 :: $_key");
-    } else {
-      _key = changeField.substring(0, 1).toLowerCase();
-      print("Key22 :: $_key");
-    }
-
-    FirebaseDatabase.instance
-        .reference()
-        .child("Listed Food")
-        .child(_auth.currentUser.uid)
-        .child(productKey)
-        .child(_key)
-        .set(text);
+  void updateDataBase() {
+    setState(() {
+      isLoading = true;
+    });
+    print(
+        "id=$productKey &product_name=$name &gst_percent=$gst &price=$price &product_desc=$des &product_image=$image &pr_category=$cat");
+    get(Config.mainUrl +
+            Config.changeMerchantProducts +
+            "?id=$productKey&product_name=$name&gst_percent=$gst&price=$price&product_desc=$des&image=$image&product_category=$cat")
+        .then((value) async {
+      print("Edit :: ${value.body}");
+      if (value.body == "done") {
+        global.showSnackbar(
+            context, "Data Changed Successfully...", Colors.green);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => listedFoods()),
+            ModalRoute.withName("/Home"));
+      } else {
+        global.showSnackbar(context, "Error " + value.body, Colors.red);
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => listedFoods()),
+            ModalRoute.withName("/Home"));
+      }
+    });
   }
+
+// void updateFiled(String text, String changeField) {
+//   if (changeField.split(" ").length > 1) {
+//     _key = changeField.split(" ")[1].substring(0, 1).toLowerCase();
+//     print("Key11 :: $_key");
+//   } else {
+//     _key = changeField.substring(0, 1).toLowerCase();
+//     print("Key22 :: $_key");
+//   }
+//
+//   FirebaseDatabase.instance
+//       .reference()
+//       .child("Listed Food")
+//       .child(_auth.currentUser.uid)
+//       .child(productKey)
+//       .child(_key)
+//       .set(text);
+// }
 }

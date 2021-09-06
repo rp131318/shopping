@@ -1,5 +1,7 @@
 library my_prj.globals;
 
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +15,7 @@ const Color colorAccent = Color(0xFFf898a2);
 const Color colorLight = Color(0xFFf8ecee);
 const Color colorDark1 = Color(0xFFf67280);
 const Color colorDark = Color(0xFFED3946);
+const Color colorCard = Color(0xfff3f3f3);
 const Color colorDarkTrans = Color(0xccED3946);
 const Color colorBlack1 = Color(0xFF5d5047);
 const Color colorBlack2 = Color(0xFF1f1b18);
@@ -22,7 +25,8 @@ const Color colorBlack5 = Color(0xFF404145);
 final grey = Colors.grey;
 final white = Colors.white;
 final rupees = ' \u{20B9}';
-
+String global_cat_id = "";
+String global_shop_id = "";
 String milli = DateTime.now().millisecondsSinceEpoch.toString();
 
 final User user = FirebaseAuth.instance.currentUser;
@@ -30,6 +34,8 @@ final uid = user.uid.toString();
 String name, email;
 
 class ImageLink {
+  static String orderManagementImage =
+      "https://i0.wp.com/miamibeef.com/wp-content/uploads/2019/09/Food-Delivery-Apps-Restaurant-Management-Tips-Miami-Beef.jpg?fit=1200%2C772&ssl=1";
   static String storeListingImage =
       "https://images.unsplash.com/photo-1534723452862-4c874018d66d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8c3RvcmV8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60";
   static String listedFoodImage =
@@ -47,6 +53,13 @@ class ImageLink {
   static String suggestionBoxImage =
       "https://media.istockphoto.com/photos/hand-inserting-suggestion-into-suggestion-box-picture-id496792842?k=6&m=496792842&s=612x612&w=0&h=tjpiINzHztG4e-YxCUly2vui-QosVGfoVxNQj4Tu9F8=";
 }
+
+// const _chars = '1234567890';
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+Random _rnd = Random();
+
+String getRandomString() => String.fromCharCodes(Iterable.generate(
+    28, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
 bool validateField(context, TextEditingController controller,
     [int validateLength = 0,
@@ -84,25 +97,36 @@ bool validateField(context, TextEditingController controller,
   }
 }
 
-void test() {
-  print("Getting Data");
+int getJsonLength(jsonText) {
+  int len = 0;
+  try {
+    while (jsonText[len] != null) {
+      len++;
+    }
+    // print("Len :: $len");
+  } catch (e) {
+    print("Len Catch :: $len");
+    return len;
+  }
 }
 
-Future<String> appCurrentUser(String key) async {
-  final User user = FirebaseAuth.instance.currentUser;
-  final uid = user.uid.toString();
-  await FirebaseDatabase.instance
-      .reference()
-      .child("Users")
-      .child(uid)
-      .once()
-      .then((DataSnapshot snap) {
-    Map<dynamic, dynamic> values = snap.value;
-    name = values["name"].toString();
-    // email = values["email"].toString();
-    return Future.value(name);
-    // print("Return Data :: " + values[key].toString());
-  });
+class Config {
+  static String mainUrl = "http://sweetsavoury.online/";
+  static String updateUrl = "update.php";
+  static String checkProfileUrl = "check_profile.php";
+  static String userInsertUrl = "user_insert.php";
+  static String profileCompletedUrl = "profile_completed.php";
+  static String categoryInsertUrl = "category_Insert.php";
+  static String shopDetailsInsert = "shop_details_Insert.php";
+  static String getCat = "getCategoryId.php";
+  static String insertProducts = "products_Insert.php";
+  static String merchantProductsUrl = "merchant_product.php";
+  static String changeMerchantProducts = "merchant_panel/product_update.php";
+  static String getMerchantDetails = "area_details.php";
+  static String changeMerchantDetails = "merchant_panel/updateshop_details.php";
+  static String getActiveOrder = "merchant_panel/active_orders.php";
+  static String getUserDetails = "user_panel/get_userdetails.php";
+  static String getProductDetailsById = "merchant_panel/get_productsbyID.php";
 }
 
 void showSnackbar(context, String message, MaterialColor color) {
@@ -113,15 +137,58 @@ void showSnackbar(context, String message, MaterialColor color) {
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
-void showSnackbarWithButton(
-    context, String message, MaterialColor color, btnText, function) {
-  final snackBar = SnackBar(
-    backgroundColor: color,
-    content: Text(message),
-    action: SnackBarAction(
-      label: btnText,
-      onPressed: function,
+showLoaderDialog(BuildContext context) {
+  AlertDialog alert = AlertDialog(
+    content: new Row(
+      children: [
+        CircularProgressIndicator(),
+        Container(margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+      ],
     ),
   );
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
+
+Widget showLoading([text = "Loading..."]) {
+  return Center(
+      child: Card(
+    elevation: 10,
+    color: white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+    margin: EdgeInsets.only(top: 222),
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(
+            valueColor: new AlwaysStoppedAnimation<Color>(colorDark),
+          ),
+          SizedBox(
+            height: 12,
+          ),
+          Text(text),
+        ],
+      ),
+    ),
+  ));
+}
+// void showSnackbarWithButton(
+//     context, String message, MaterialColor color, btnText, function) {
+//   final snackBar = SnackBar(
+//     backgroundColor: color,
+//     content: Text(message),
+//     action: SnackBarAction(
+//       label: btnText,
+//       onPressed: function,
+//     ),
+//   );
+//   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+// }
