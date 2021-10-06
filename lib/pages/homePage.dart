@@ -563,7 +563,7 @@ class _homePageState extends State<homePage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       name,
-                      style: Theme.of(context).primaryTextTheme.title,
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
                     ),
                   ),
                 ],

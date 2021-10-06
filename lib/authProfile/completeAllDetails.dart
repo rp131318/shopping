@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shopping/pages/homePage.dart';
 import 'package:shopping/widget/button_widget.dart';
 import 'package:shopping/widget/progressHud.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
@@ -58,6 +59,10 @@ class _completeAllDetailsState extends State<completeAllDetails> {
     "Sweets",
     "Cold Drinks",
     "Wafers",
+    "Penda",
+    'Barfi',
+    'Halwa',
+    'Mava Mithai',
     "Other"
   ];
   var foodTagesSelected = [];
@@ -572,6 +577,8 @@ class _completeAllDetailsState extends State<completeAllDetails> {
           showSnackbar(context, "Error : " + value.body, Colors.red);
         } else {
           showSnackbar(context, "Profile Completed Successfully", Colors.green);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => homePage()));
         }
       });
     });

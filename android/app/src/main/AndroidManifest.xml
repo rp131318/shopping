@@ -6,7 +6,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="shopping"
+        android:label="Shopping"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
         <activity

@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/widget/progressHud.dart';
 import '../globalVariable.dart';
+import 'orderDetails.dart';
 
 class orderManagement extends StatefulWidget {
   @override
@@ -102,163 +103,171 @@ class _orderManagementState extends State<orderManagement> {
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: productImage.length,
                         itemBuilder: (context, index) {
-                          return Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            margin: EdgeInsets.only(
-                                left: 8,
-                                right: 8,
-                                top: 14,
-                                bottom: index == 4 ? 22 : 0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 25,
-                                    child: Card(
-                                      semanticContainer: true,
-                                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                      child: Image.network(
-                                        productImage[index],
-                                        width: 88,
-                                        height: 88,
-                                        fit: BoxFit.fill,
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => orderDetails()));
+                            },
+                            child: Card(
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              margin: EdgeInsets.only(
+                                  left: 8,
+                                  right: 8,
+                                  top: 14,
+                                  bottom: index == 4 ? 22 : 0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 25,
+                                      child: Card(
+                                        semanticContainer: true,
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
+                                        child: Image.network(
+                                          productImage[index],
+                                          width: 88,
+                                          height: 88,
+                                          fit: BoxFit.fill,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 40,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 8),
+                                    Expanded(
+                                      flex: 40,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 8),
+                                        child: Column(
+                                          // mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              productName[index],
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: colorDark),
+                                            ),
+                                            Text(
+                                              productPrice[index] +
+                                                  rupees +
+                                                  "/" +
+                                                  productMeas[index],
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.account_circle_rounded,
+                                                  color: colorDark,
+                                                  size: 16,
+                                                ),
+                                                Text(
+                                                  userName[index],
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on_rounded,
+                                                  color: colorDark,
+                                                  size: 16,
+                                                ),
+                                                Text(
+                                                  userCity[index].toString() +
+                                                      "," +
+                                                      userPincode[index]
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.payment,
+                                                  color: colorDark,
+                                                  size: 16,
+                                                ),
+                                                Text(
+                                                  paymentMethod[index]
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 33),
                                       child: Column(
-                                        // mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            productName[index],
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: colorDark),
+                                          Row(
+                                            children: [
+                                              // Icon(
+                                              //   Icons.indeterminate_check_box_rounded,
+                                              //   size: 30,
+                                              //   color: Colors.grey,
+                                              // ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 4),
+                                                child: Text(
+                                                  qnt[index].toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      color: colorDark,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              // GestureDetector(
+                                              //   onTap: () {},
+                                              //   child: Icon(
+                                              //     Icons
+                                              //         .indeterminate_check_box_rounded,
+                                              //     size: 30,
+                                              //     color: Colors.red,
+                                              //   ),
+                                              // ),
+                                            ],
                                           ),
                                           Text(
-                                            productPrice[index] +
-                                                rupees +
-                                                "/" +
-                                                productMeas[index],
+                                            qntPrice[index] + rupees,
                                             style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 16,
                                             ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.account_circle_rounded,
-                                                color: colorDark,
-                                                size: 16,
-                                              ),
-                                              Text(
-                                                userName[index],
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.location_on_rounded,
-                                                color: colorDark,
-                                                size: 16,
-                                              ),
-                                              Text(
-                                                userCity[index].toString() +
-                                                    "," +
-                                                    userPincode[index]
-                                                        .toString(),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.payment,
-                                                color: colorDark,
-                                                size: 16,
-                                              ),
-                                              Text(
-                                                paymentMethod[index].toString(),
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ],
                                           )
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 33),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            // Icon(
-                                            //   Icons.indeterminate_check_box_rounded,
-                                            //   size: 30,
-                                            //   color: Colors.grey,
-                                            // ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 4),
-                                              child: Text(
-                                                qnt[index].toString(),
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: colorDark,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            // GestureDetector(
-                                            //   onTap: () {},
-                                            //   child: Icon(
-                                            //     Icons
-                                            //         .indeterminate_check_box_rounded,
-                                            //     size: 30,
-                                            //     color: Colors.red,
-                                            //   ),
-                                            // ),
-                                          ],
-                                        ),
-                                        Text(
-                                          qntPrice[index] + rupees,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           );

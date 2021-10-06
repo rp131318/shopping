@@ -180,6 +180,9 @@ Widget showLoading([text = "Loading..."]) {
     ),
   ));
 }
+
+var productCategory = ["Penda", 'Barfi', 'Halwa', 'Mava Mithai'];
+
 // void showSnackbarWithButton(
 //     context, String message, MaterialColor color, btnText, function) {
 //   final snackBar = SnackBar(

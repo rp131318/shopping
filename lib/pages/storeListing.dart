@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/globalVariable.dart';
@@ -41,7 +43,7 @@ class _storeListingState extends State<storeListing> {
   String milli = DateTime.now().millisecondsSinceEpoch.toString();
   bool tax = true;
   bool cusPriceV = false;
-  List<String> catList = ["Click to Select", "Pizza", "Burger", "Snacks"];
+  List<String> catList = ["Click to Select"];
   List<String> measList = ["Kg", "Piece", "Litre"];
   int id = 1;
   String radioButtonItem = "Standard";
@@ -53,7 +55,9 @@ class _storeListingState extends State<storeListing> {
   bool isLoading = false;
 
   @override
-  void initState() {}
+  void initState() {
+    getUserCat();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +148,8 @@ class _storeListingState extends State<storeListing> {
                   SizedBox(
                     height: 12,
                   ),
-                  titleTextField("HSN Code/SAC Code", hsnCodeController),
+                  titleTextField("HSN Code/SAC Code", hsnCodeController, true,
+                      TextInputType.number),
                   SizedBox(
                     height: 12,
                   ),
@@ -372,43 +377,43 @@ class _storeListingState extends State<storeListing> {
     );
   }
 
-  Widget buildDropdownButtonMeas() {
-    return Center(
-      child: DropdownButton<String>(
-        value: dropdownValueMeas,
-        elevation: 0,
-        underline: Container(),
-        icon: Container(),
-        style: const TextStyle(color: global.colorBlack2),
-        onChanged: (String newValue) {
-          setState(() {
-            dropdownValueMeas = newValue;
-
-            if (dropdownValueMeas == "Kg") {
-              _unit = "Gram";
-              qntGm = ["250", "500", "750", "1000"];
-            } else if (dropdownValueMeas == "Piece") {
-              _unit = dropdownValueMeas;
-              qntGm = ["1", "3", "5", "10"];
-            } else if (dropdownValueMeas == "Litre") {
-              _unit = dropdownValueMeas;
-              qntGm = ["1", "3", "5", "10"];
-            }
-            print("qntGm :: $qntGm");
-          });
-        },
-        items: measList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              style: TextStyle(fontSize: 18),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  // Widget buildDropdownButtonMeas() {
+  //   return Center(
+  //     child: DropdownButton<String>(
+  //       value: dropdownValueMeas,
+  //       elevation: 0,
+  //       underline: Container(),
+  //       icon: Container(),
+  //       style: const TextStyle(color: global.colorBlack2),
+  //       onChanged: (String newValue) {
+  //         setState(() {
+  //           dropdownValueMeas = newValue;
+  //
+  //           if (dropdownValueMeas == "Kg") {
+  //             _unit = "Gram";
+  //             qntGm = ["250", "500", "750", "1000"];
+  //           } else if (dropdownValueMeas == "Piece") {
+  //             _unit = dropdownValueMeas;
+  //             qntGm = ["1", "3", "5", "10"];
+  //           } else if (dropdownValueMeas == "Litre") {
+  //             _unit = dropdownValueMeas;
+  //             qntGm = ["1", "3", "5", "10"];
+  //           }
+  //           print("qntGm :: $qntGm");
+  //         });
+  //       },
+  //       items: measList.map<DropdownMenuItem<String>>((String value) {
+  //         return DropdownMenuItem<String>(
+  //           value: value,
+  //           child: Text(
+  //             value,
+  //             style: TextStyle(fontSize: 18),
+  //           ),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
 
   Widget buildDropdownButtonCate() {
     return Center(
@@ -787,7 +792,7 @@ class _storeListingState extends State<storeListing> {
         !priceController.text.toString().contains("..")) {
       double qntPrice = 0;
       switch (_unit) {
-        case "Gram":
+        case "Kg":
           qntPrice =
               (int.parse(quant) * double.parse(priceController.text)) / 1000;
           break;
@@ -932,5 +937,44 @@ class _storeListingState extends State<storeListing> {
 
   String removeLastAndFirst(String string) {
     return string.toString().substring(1, string.length - 1);
+  }
+
+  void getUserCat() {
+    print("shop Id :: $global_shop_id");
+    get(Config.mainUrl +
+            Config.getMerchantDetails +
+            "?shop_id=" +
+            global_shop_id)
+        .then((value) {
+      print("Value :: ${value.body}");
+      final data = jsonDecode(value.body.toString());
+      print("Data :: ${data[0]['category']}");
+      var array = data[0]['category'].toString().split(" | ");
+      array.remove("");
+      array.sort();
+      array.insert(0, "Click to Select");
+      // array = array.reversed.toList();
+      print("Array ::$array");
+      setState(() {
+        catList = array;
+      });
+
+      // Map<String, dynamic> map = data[0] as Map<String, dynamic>;
+
+      // add = map['address'].toString() +
+      //     ", " +
+      //     map['area'].toString() +
+      //     ", " +
+      //     map['pincode'].toString();
+      // shopName = map['name'].toString();
+      // state = map['state'].toString();
+      // city = map['city'].toString();
+      // gender = map['gender'].toString();
+      // food = map['category'].toString();
+      // setState(() {
+      //   print("Map :: $map");
+      //   print("city :: $city");
+      // });
+    });
   }
 }
