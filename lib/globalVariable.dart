@@ -127,6 +127,10 @@ class Config {
   static String getActiveOrder = "merchant_panel/active_orders.php";
   static String getUserDetails = "user_panel/get_userdetails.php";
   static String getProductDetailsById = "merchant_panel/get_productsbyID.php";
+  static String setPickupLocation =
+      "https://apiv2.shiprocket.in/v1/external/settings/company/addpickup";
+  static String placeOrderShipRocket =
+      "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc";
 }
 
 void showSnackbar(context, String message, MaterialColor color) {
@@ -152,6 +156,46 @@ showLoaderDialog(BuildContext context) {
     builder: (BuildContext context) {
       return alert;
     },
+  );
+}
+
+Widget titleTextField(String s, TextEditingController nameController,
+    [bool enable = true, final keyBoard = TextInputType.text, int i = 0]) {
+  return Column(
+    children: [
+      Align(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 18),
+          child: Text(
+            s,
+            style: TextStyle(
+                fontSize: 18, color: colorDark, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+      Container(
+        height: 46,
+        decoration: BoxDecoration(
+            // color: global.colorLight,
+            border: Border.all(color: grey, width: 1),
+            borderRadius: BorderRadius.circular(8)),
+        margin: EdgeInsets.only(left: 18, right: 18, top: 6),
+        padding: EdgeInsets.only(left: 18),
+        child: TextField(
+          enabled: enable,
+          style: TextStyle(color: colorBlack2, fontSize: 18),
+          controller: nameController,
+          keyboardType: keyBoard,
+          textAlign: TextAlign.left,
+          cursorColor: colorBlack2,
+          decoration: new InputDecoration(
+              border: InputBorder.none,
+              hintText: " ",
+              hintStyle: TextStyle(color: Colors.grey)),
+        ),
+      ),
+    ],
   );
 }
 
@@ -182,6 +226,33 @@ Widget showLoading([text = "Loading..."]) {
 }
 
 var productCategory = ["Penda", 'Barfi', 'Halwa', 'Mava Mithai'];
+
+Widget loadingWidget([String msg = "No details were found."]) {
+  return Center(
+    child: FutureBuilder(
+        future: Future.delayed(Duration(seconds: 3)),
+        builder: (c, s) => s.connectionState == ConnectionState.done
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                    "https://cdn-icons-png.flaticon.com/512/2345/2345152.png",
+                    width: 155,
+                    height: 155,
+                    color: colorDark,
+                  ),
+                  SizedBox(
+                    height: 22,
+                  ),
+                  Text(
+                    msg,
+                    style: TextStyle(fontSize: 18),
+                  )
+                ],
+              )
+            : CircularProgressIndicator()),
+  );
+}
 
 // void showSnackbarWithButton(
 //     context, String message, MaterialColor color, btnText, function) {

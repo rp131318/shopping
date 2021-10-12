@@ -8,6 +8,7 @@ class ButtonWidget extends StatelessWidget {
   final double right;
   final double fontSize;
   final double width;
+  final double height;
   final Function function;
   bool border = false;
 
@@ -15,7 +16,8 @@ class ButtonWidget extends StatelessWidget {
       [this.border = false,
       this.left = 14,
       this.right = 14,
-      this.width = 46,
+      this.width = double.infinity,
+      this.height = 46,
       this.fontSize = 18]);
 
   @override
@@ -23,8 +25,8 @@ class ButtonWidget extends StatelessWidget {
     return InkWell(
       onTap: () => function(),
       child: Container(
-          width: double.infinity,
-          height: width,
+          width: width,
+          height: height,
           decoration: BoxDecoration(
               color: !border ? colorDark : Colors.transparent,
               border: Border.all(

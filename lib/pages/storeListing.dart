@@ -37,7 +37,7 @@ class _storeListingState extends State<storeListing> {
   final picker = ImagePicker();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String link;
-  String _unit = "Kg";
+  String _unit = "Gram";
   String dropdownValueCate = "Click to Select";
   String dropdownValueMeas = "Kg";
   String milli = DateTime.now().millisecondsSinceEpoch.toString();
@@ -877,7 +877,7 @@ class _storeListingState extends State<storeListing> {
                   setState(() {
                     radioButtonItemMeas = 'KG Kilogram';
                     idMeas = 1;
-                    _unit = "Kg";
+                    _unit = "Gram";
                     qntGm = ["250", "500", "750", "1000"];
                   });
                 },

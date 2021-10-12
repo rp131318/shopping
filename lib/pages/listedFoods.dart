@@ -42,41 +42,43 @@ class _listedFoodsState extends State<listedFoods> {
       statusBarIconBrightness: Brightness.dark,
     ));
     return Scaffold(
-      body: Column(
-        children: [
-          SizedBox(
-            height: 44,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 14),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "Food Listed",
-                style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: colorBlack5),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 14),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "Your delicious listed foods",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey),
-              ),
-            ),
-          ),
-          gridOfFood(),
-          bottom(),
-        ],
-      ),
+      body: p.length > 0
+          ? Column(
+              children: [
+                SizedBox(
+                  height: 44,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "Food Listed",
+                      style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: colorBlack5),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "Your delicious listed foods",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                  ),
+                ),
+                gridOfFood(),
+                bottom(),
+              ],
+            )
+          : loadingWidget("No listed food were found."),
     );
   }
 
@@ -279,7 +281,7 @@ class _listedFoodsState extends State<listedFoods> {
                   );
                 })),
           )
-        : showLoading("Loading your listed foods...");
+        : loadingWidget("No listed food were found.");
   }
 
   Widget bottom() {

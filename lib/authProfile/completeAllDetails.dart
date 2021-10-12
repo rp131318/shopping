@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/pages/homePage.dart';
 import 'package:shopping/widget/button_widget.dart';
 import 'package:shopping/widget/progressHud.dart';
@@ -581,6 +585,72 @@ class _completeAllDetailsState extends State<completeAllDetails> {
               .push(MaterialPageRoute(builder: (context) => homePage()));
         }
       });
+    });
+  }
+
+  Future<void> generateToken() async {
+    final time = DateTime.now();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('dateWeather') == null) {
+      await prefs.setString('dateWeather', "time.day.toString()");
+    }
+    print("Store Date :: ${prefs.getString('dateWeather')}");
+    String _date = prefs.getString('dateWeather');
+    String _date1 = time.day.toString();
+    // ignore: unrelated_type_equality_checks
+    // if (true) {
+    if (_date1 != _date) {
+      String email = "rahul24681357@gmail.com";
+      String pass = "setupdev@1998";
+      //create token
+      post("https://apiv2.shiprocket.in/v1/external/auth/login?email=$email&password=$pass")
+          .then((value) async {
+        final json = jsonDecode(value.body.toString().replaceAll("\n", ""));
+        String token = json['token'].toString();
+        await prefs.setString('token', token);
+        print("Token :: ${json['token']}");
+      });
+
+      await prefs.setString('dateWeather', time.day.toString());
+    } else {
+      print("Token :: ${prefs.getString('token')}");
+    }
+
+    setPickupLocation();
+  }
+
+  Future<void> setPickupLocation() async {
+    DateTime time = DateTime.now();
+    String phoneNumber =
+        _auth.currentUser.phoneNumber.toString().substring(3, 13);
+    // String pin = add.toString().split(",")[2].toString().trim();
+    print("phoneNumber :: $phoneNumber");
+    // final token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjE5NjQ2NDksIml"
+    //     "zcyI6Imh0dHBzOi8vYXBpdjIuc2hpcHJvY2tldC5pbi92MS9leHRlcm5hbC9hdXRoL2xvZ"
+    //     "2luIiwiaWF0IjoxNjM0MDU3MTY2LCJleHAiOjE2MzQ5MjExNjYsIm5iZiI6MTYzNDA1NzE"
+    //     "2NiwianRpIjoiZkpEYTdtM2FvNTJ0SndYQyJ9.6f6sfSOZl4oCaSwB1-HEZ3aABuQCTPi"
+    //     "zRjk1Aarqj3Q";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final header = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+    final body = {
+      "pickup_location": "Office",
+      "name": "${_auth.currentUser.displayName}",
+      "email": "${_auth.currentUser.email}",
+      "phone": phoneNumber,
+      "address": address1Controller.text,
+      "address_2": "",
+      "city": cityController.text,
+      "state": stateController.text,
+      "country": "India",
+      "pin_code": pinCodeController.text,
+    };
+    post(Config.setPickupLocation, body: jsonEncode(body), headers: header)
+        .then((value) {
+      print("Pickup :: ${value.body}");
     });
   }
 

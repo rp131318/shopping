@@ -29,13 +29,14 @@ class _settingPageState extends State<settingPage> {
       fav = "--",
       shopName = "--",
       gender = "--";
+  SharedPreferences prefs;
 
   bool merchant = false;
   String userString = "User";
 
   @override
   void initState() {
-    // TODO: implement initState
+    // setPickupLocation();
     getData();
   }
 
@@ -334,4 +335,39 @@ class _settingPageState extends State<settingPage> {
     //   });
     // });
   }
+
+  // Future<void> setPickupLocation() async {
+  //   DateTime time = DateTime.now();
+  //   String phoneNumber =
+  //       _auth.currentUser.phoneNumber.toString().substring(3, 13);
+  //   String pin = add.toString().split(",")[2].toString().trim();
+  //   print("phoneNumber :: $phoneNumber");
+  //   // final token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjE5NjQ2NDksIml"
+  //   //     "zcyI6Imh0dHBzOi8vYXBpdjIuc2hpcHJvY2tldC5pbi92MS9leHRlcm5hbC9hdXRoL2xvZ"
+  //   //     "2luIiwiaWF0IjoxNjM0MDU3MTY2LCJleHAiOjE2MzQ5MjExNjYsIm5iZiI6MTYzNDA1NzE"
+  //   //     "2NiwianRpIjoiZkpEYTdtM2FvNTJ0SndYQyJ9.6f6sfSOZl4oCaSwB1-HEZ3aABuQCTPi"
+  //   //     "zRjk1Aarqj3Q";
+  //   prefs = await SharedPreferences.getInstance();
+  //   final token = prefs.getString('token');
+  //   final header = {
+  //     "Content-Type": "application/json",
+  //     "Authorization": "Bearer $token",
+  //   };
+  //   final body = {
+  //     "pickup_location": "Office",
+  //     "name": "${_auth.currentUser.displayName}",
+  //     "email": "${_auth.currentUser.email}",
+  //     "phone": phoneNumber,
+  //     "address": add,
+  //     "address_2": "",
+  //     "city": city,
+  //     "state": state,
+  //     "country": "India",
+  //     "pin_code": pin,
+  //   };
+  //   post(Config.setPickupLocation, body: jsonEncode(body), headers: header)
+  //       .then((value) {
+  //     print("Pickup :: ${value.body}");
+  //   });
+  // }
 }
