@@ -18,6 +18,7 @@ class _orderManagementState extends State<orderManagement> {
   var productId = [];
   var qnt = [];
   var paymentMethod = [];
+  var orderId = [];
   var qntPrice = [];
   var productName = [];
   var productMeas = [];
@@ -28,6 +29,7 @@ class _orderManagementState extends State<orderManagement> {
   var productCode = [];
   var productDes = [];
   SharedPreferences prefs;
+  var data;
 
   var userName = [];
   var userNumber = [];
@@ -52,6 +54,7 @@ class _orderManagementState extends State<orderManagement> {
     // TODO: implement initState
     getOrder();
     generateToken();
+    getData();
     super.initState();
   }
 
@@ -138,6 +141,10 @@ class _orderManagementState extends State<orderManagement> {
                                               currentDetails = index;
                                               showOrderDetails = true;
                                             });
+
+                                            print(
+                                                "Shipped :: ${prefs.getString('${orderId[currentDetails]}')}");
+
                                             // Navigator.of(context).push(
                                             //     MaterialPageRoute(
                                             //         builder: (context) =>
@@ -528,6 +535,7 @@ class _orderManagementState extends State<orderManagement> {
         qnt.add(map["amount"].toString());
         qntPrice.add(map["price"].toString());
         paymentMethod.add(map["payment_method"].toString());
+        orderId.add(map["order_id"].toString());
         getUserDetailsByUserId(map["user_id"].toString());
         getProductDetailsById(map["product_id"].toString());
         // productPrice.add(map["price"].toString());
@@ -725,20 +733,21 @@ class _orderManagementState extends State<orderManagement> {
             style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.bold, color: colorBlack5),
           ),
-          trailing: isShip
-              ? Container(
-                  margin: EdgeInsets.only(right: 14),
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Icon(
-                    Icons.done_rounded,
-                    size: 22,
-                    color: Colors.white,
-                  ))
-              : ButtonWidget(context, "Pending", productDimensionFunction, true,
-                  14, 14, 80, 30, 16),
+          trailing:
+              prefs.getString('${orderId[currentDetails]}').toString() == "null1"
+                  ? ButtonWidget(context, "Pending", productDimensionFunction,
+                      true, 14, 14, 80, 30, 16)
+                  : Container(
+                      margin: EdgeInsets.only(right: 14),
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(100)),
+                      child: Icon(
+                        Icons.done_rounded,
+                        size: 22,
+                        color: Colors.white,
+                      )),
           minVerticalPadding: 0,
           leading: Icon(
             Icons.arrow_forward_ios_rounded,
@@ -747,43 +756,43 @@ class _orderManagementState extends State<orderManagement> {
           ),
           horizontalTitleGap: 0,
         ),
-        ListTile(
-          title: Text(
-            "Delivered",
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: colorBlack5),
-          ),
-          trailing: isDeli
-              ? Container(
-                  margin: EdgeInsets.only(right: 14),
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Text(
-                    "Done",
-                    style: TextStyle(fontSize: 14, color: white),
-                  ),
-                )
-              : Container(
-                  margin: EdgeInsets.only(right: 14),
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(100)),
-                  child: Text(
-                    "Pending",
-                    style: TextStyle(fontSize: 14, color: white),
-                  ),
-                ),
-          leading: Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: colorBlack5,
-            size: 18,
-          ),
-          minVerticalPadding: 0,
-          horizontalTitleGap: 0,
-        ),
+        // ListTile(
+        //   title: Text(
+        //     "Delivered",
+        //     style: TextStyle(
+        //         fontSize: 18, fontWeight: FontWeight.bold, color: colorBlack5),
+        //   ),
+        //   trailing: isDeli
+        //       ? Container(
+        //           margin: EdgeInsets.only(right: 14),
+        //           padding: EdgeInsets.all(8),
+        //           decoration: BoxDecoration(
+        //               color: Colors.green,
+        //               borderRadius: BorderRadius.circular(100)),
+        //           child: Text(
+        //             "Done",
+        //             style: TextStyle(fontSize: 14, color: white),
+        //           ),
+        //         )
+        //       : Container(
+        //           margin: EdgeInsets.only(right: 14),
+        //           padding: EdgeInsets.all(8),
+        //           decoration: BoxDecoration(
+        //               color: Colors.orange,
+        //               borderRadius: BorderRadius.circular(100)),
+        //           child: Text(
+        //             "Pending",
+        //             style: TextStyle(fontSize: 14, color: white),
+        //           ),
+        //         ),
+        //   leading: Icon(
+        //     Icons.arrow_forward_ios_rounded,
+        //     color: colorBlack5,
+        //     size: 18,
+        //   ),
+        //   minVerticalPadding: 0,
+        //   horizontalTitleGap: 0,
+        // ),
         Padding(
           padding: const EdgeInsets.only(top: 18, left: 18),
           child: Align(
@@ -806,11 +815,6 @@ class _orderManagementState extends State<orderManagement> {
           subtitle: Text(
             " ${userCity[currentDetails]} ${userState[currentDetails]}",
             style: TextStyle(fontSize: 16, color: grey),
-          ),
-          trailing: Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: colorBlack5,
-            size: 18,
           ),
           leading: Container(
             // margin: EdgeInsets.only(right: 14),
@@ -841,18 +845,15 @@ class _orderManagementState extends State<orderManagement> {
         ),
         ListTile(
           title: Text(
-            "COD",
+            paymentMethod[currentDetails],
             style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.bold, color: colorBlack5),
           ),
           subtitle: Text(
-            "Cash on delivery",
+            paymentMethod[currentDetails] == "COD"
+                ? "Cash on delivery"
+                : "Payment Prepaid",
             style: TextStyle(fontSize: 16, color: grey),
-          ),
-          trailing: Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: colorBlack5,
-            size: 18,
           ),
           leading: Container(
             // margin: EdgeInsets.only(right: 14),
@@ -957,7 +958,7 @@ class _orderManagementState extends State<orderManagement> {
     final body = {
       "order_id": "${time.microsecondsSinceEpoch}",
       "order_date": "$time",
-      "pickup_location": "Home",
+      "pickup_location": "${data['pickup']}",
       "billing_customer_name": "${userName[currentDetails]}",
       "billing_last_name": "",
       "billing_address": "${userAddress[currentDetails]}",
@@ -991,59 +992,20 @@ class _orderManagementState extends State<orderManagement> {
       "weight": "${weightController.text}",
     };
 
-    final body1 = {
-      "order_id": "224-447",
-      "order_date": "2021-10-24 11:11",
-      "pickup_location": "Home",
-      "channel_id": "",
-      "comment": "Reseller: M/s Goku",
-      "billing_customer_name": "Naruto",
-      "billing_last_name": "Uzumaki",
-      "billing_address": "House 221B, Leaf Village",
-      "billing_address_2": "Near Hokage House",
-      "billing_city": "New Delhi",
-      "billing_pincode": "110002",
-      "billing_state": "Delhi",
-      "billing_country": "India",
-      "billing_email": "naruto@uzumaki.com",
-      "billing_phone": "9876543210",
-      "shipping_is_billing": true,
-      "shipping_customer_name": "",
-      "shipping_last_name": "",
-      "shipping_address": "",
-      "shipping_address_2": "",
-      "shipping_city": "",
-      "shipping_pincode": "",
-      "shipping_country": "",
-      "shipping_state": "",
-      "shipping_email": "",
-      "shipping_phone": "",
-      "order_items": [
-        {
-          "name": "Kunai",
-          "sku": "chakra123",
-          "units": 10,
-          "selling_price": "900",
-          "discount": "",
-          "tax": "",
-          "hsn": 441122
-        }
-      ],
-      "payment_method": "Prepaid",
-      "shipping_charges": 0,
-      "giftwrap_charges": 0,
-      "transaction_charges": 0,
-      "total_discount": 0,
-      "sub_total": 9000,
-      "length": 10,
-      "breadth": 15,
-      "height": 20,
-      "weight": 2.5
-    };
-
     post(Config.placeOrderShipRocket, body: jsonEncode(body), headers: header)
-        .then((value) {
+        .then((value) async {
+      final data = value.body;
+      data.replaceAll("\n", "");
       print("Pickup :: ${value.body}");
+      await prefs.setString('${orderId[currentDetails]}', 'true');
+      print("PRID :: ${productId[currentDetails]}");
+      get(Config.mainUrl +
+              Config.afterShipping +
+              "?id=${productId[currentDetails]}&ship_order=data&shipment_id=data")
+          .then((value) {
+        //
+        print("Res : ${value.body}");
+      });
     });
 
     setState(() {
@@ -1078,5 +1040,20 @@ class _orderManagementState extends State<orderManagement> {
     } else {
       print("Token :: ${prefs.getString('token')}");
     }
+  }
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.getString('shop_id');
+    get(Config.mainUrl +
+            Config.getMerchantDetails +
+            "?shop_id=" +
+            prefs.getString('shop_id'))
+        .then((value) {
+      print("Value :: ${value.body}");
+      data = jsonDecode(value.body.toString());
+      data = data[0];
+      print("Data :: $data");
+    });
   }
 }

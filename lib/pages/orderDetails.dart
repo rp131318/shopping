@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/widget/button_widget.dart';
 
 import '../globalVariable.dart';
@@ -11,6 +15,15 @@ class orderDetails extends StatefulWidget {
 
 // ignore: camel_case_types
 class _orderDetailsState extends State<orderDetails> {
+  var data;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,6 +163,8 @@ class _orderDetailsState extends State<orderDetails> {
       ),
     );
   }
+
+
 
   pendingFun() {}
 }

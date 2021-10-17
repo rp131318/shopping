@@ -310,30 +310,6 @@ class _settingPageState extends State<settingPage> {
         print("city :: $city");
       });
     });
-
-    // FirebaseDatabase.instance
-    //     .reference()
-    //     .child("Users")
-    //     .child(_auth.currentUser.uid)
-    //     .once()
-    //     .then((DataSnapshot snap) {
-    //   Map<dynamic, dynamic> values = snap.value;
-    //   add = values["address1"].toString() +
-    //       " " +
-    //       values["address2"].toString() +
-    //       " " +
-    //       values["pincode"].toString();
-    //   food = values["food"].toString();
-    //   phone = values["phone"].toString();
-    //   city = values["city"].toString();
-    //   dob = values["dob"].toString();
-    //   fav = values["fav"].toString();
-    //   state = values["state"].toString();
-    //   gender = values["gender"].toString();
-    //   setState(() {
-    //     print(food);
-    //   });
-    // });
   }
 
   // Future<void> setPickupLocation() async {

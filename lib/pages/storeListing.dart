@@ -514,6 +514,9 @@ class _storeListingState extends State<storeListing> {
     print("Qnt :: $qntGmCus\nQnt Price :: $qntPrice");
     print("Meas :: $_unit");
     print("Image link :: $link");
+    if(_unit == "Gram"){
+      _unit = "Kg";
+    }
     print(
         "Qnt :: ${removeLastAndFirst(qntGmCus.toString())}\nQnt Price :: ${removeLastAndFirst(qntPrice.toString())}");
     await http.post(Config.mainUrl + Config.insertProducts, body: {
@@ -792,7 +795,7 @@ class _storeListingState extends State<storeListing> {
         !priceController.text.toString().contains("..")) {
       double qntPrice = 0;
       switch (_unit) {
-        case "Kg":
+        case "Gram":
           qntPrice =
               (int.parse(quant) * double.parse(priceController.text)) / 1000;
           break;

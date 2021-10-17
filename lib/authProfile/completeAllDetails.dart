@@ -53,6 +53,7 @@ class _completeAllDetailsState extends State<completeAllDetails> {
   double _count = 0;
   String randomCatId = "";
   String random_storeid = "";
+  String pickup = "";
 
   // Group Value for Radio Button.
   int id = 1;
@@ -509,7 +510,8 @@ class _completeAllDetailsState extends State<completeAllDetails> {
         setState(() {
           isLoading = true;
         });
-        senddata();
+        // senddata();
+        generateToken();
       }
     });
     // print("click");
@@ -553,9 +555,13 @@ class _completeAllDetailsState extends State<completeAllDetails> {
       "category": foodTag,
       "address": address1Controller.text,
       "gender": radioButtonItem,
+      "pickup": pickup,
     }).then((value) {
       if (value.body != "done") {
         showSnackbar(context, "Error : " + value.body, Colors.red);
+        setState(() {
+          isLoading = false;
+        });
       }
       print("Responce Shop :: ${value.body}");
     });
@@ -598,29 +604,30 @@ class _completeAllDetailsState extends State<completeAllDetails> {
     String _date = prefs.getString('dateWeather');
     String _date1 = time.day.toString();
     // ignore: unrelated_type_equality_checks
-    // if (true) {
-    if (_date1 != _date) {
+    if (true) {
+      // if (_date1 != _date) {
       String email = "rahul24681357@gmail.com";
       String pass = "setupdev@1998";
       //create token
-      post("https://apiv2.shiprocket.in/v1/external/auth/login?email=$email&password=$pass")
+      await post(
+              "https://apiv2.shiprocket.in/v1/external/auth/login?email=$email&password=$pass")
           .then((value) async {
         final json = jsonDecode(value.body.toString().replaceAll("\n", ""));
         String token = json['token'].toString();
         await prefs.setString('token', token);
         print("Token :: ${json['token']}");
+        setPickupLocation();
       });
 
       await prefs.setString('dateWeather', time.day.toString());
     } else {
       print("Token :: ${prefs.getString('token')}");
     }
-
-    setPickupLocation();
   }
 
   Future<void> setPickupLocation() async {
     DateTime time = DateTime.now();
+    pickup = storeNameController.text + "_" + getRandomString(8);
     String phoneNumber =
         _auth.currentUser.phoneNumber.toString().substring(3, 13);
     // String pin = add.toString().split(",")[2].toString().trim();
@@ -632,12 +639,19 @@ class _completeAllDetailsState extends State<completeAllDetails> {
     //     "zRjk1Aarqj3Q";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    print("token :: ${_auth.currentUser.displayName}");
+    print("email :: ${_auth.currentUser.email}");
+    print("phone :: $phoneNumber");
+    print("address :: ${address1Controller.text}");
+    print("city :: ${cityController.text}");
+    print("state :: ${stateController.text}");
+    print("pin_code :: ${pinCodeController.text}");
     final header = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
     final body = {
-      "pickup_location": "Office",
+      "pickup_location": "$pickup",
       "name": "${_auth.currentUser.displayName}",
       "email": "${_auth.currentUser.email}",
       "phone": phoneNumber,
@@ -650,7 +664,25 @@ class _completeAllDetailsState extends State<completeAllDetails> {
     };
     post(Config.setPickupLocation, body: jsonEncode(body), headers: header)
         .then((value) {
-      print("Pickup :: ${value.body}");
+      String data = value.body.toString().replaceAll("\n", "");
+      print("Pickup :: $data");
+      final dataJson = jsonDecode(data);
+      print("Data :: " + dataJson['errors'].toString());
+      if (dataJson['errors'].toString() != "null") {
+        print("errorLoop");
+        setState(() {
+          isLoading = false;
+        });
+        try {
+          if ("${dataJson['errors']['address']}" != null) {
+            showSnackbar(
+                context, "${dataJson['errors']['address']}", Colors.red);
+          }
+        } catch (e) {}
+      } else {
+        print("sendData");
+        senddata();
+      }
     });
   }
 

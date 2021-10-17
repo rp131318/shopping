@@ -248,16 +248,18 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
     exp = prefs.getString("foodExp");
     image = prefs.getString("foodImage");
     location = prefs.getString("foodLocation");
-    productKey = prefs.getString("foodKey");
+    // productKey = prefs.getString("foodKey");
     unit = prefs.getString("unit");
     gst = prefs.getString("gst");
     hsc = prefs.getString("hsc");
     productKey = prefs.getString("id");
     des = prefs.getString("des");
     setState(() {
-      print(location);
+      print("name $name");
+      print("price $price");
+      print("cat $cat");
+      print("image $image");
       print("productKey $productKey");
-      print(image);
     });
   }
 
@@ -481,6 +483,18 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
                               des = nameController.text;
                               break;
                           }
+                          if (name.isEmpty) {
+                            //
+                          }
+                          if (price.isEmpty) {
+                            //
+                          }
+                          if (cat.isEmpty) {
+                            //
+                          }
+                          if (gst.isEmpty) {
+                            //
+                          }
                           updateDataBase();
                           nameController.clear();
                           Navigator.pop(context);
@@ -513,10 +527,10 @@ class _merchantFoodDetailsState extends State<merchantFoodDetails> {
       isLoading = true;
     });
     print(
-        "id=$productKey &product_name=$name &gst_percent=$gst &price=$price &product_desc=$des &product_image=$image &pr_category=$cat");
+        "id=$productKey &product_name=$name &gst_percent=$gst &price=$price &product_desc=$des &pr_category=$cat");
     get(Config.mainUrl +
             Config.changeMerchantProducts +
-            "?id=$productKey&product_name=$name&gst_percent=$gst&price=$price&product_desc=$des&image=$image&product_category=$cat")
+            "?id=$productKey&product_name=$name&gst_percent=$gst&price=$price&product_desc=$des&prca=$cat")
         .then((value) async {
       print("Edit :: ${value.body}");
       if (value.body == "done") {

@@ -58,8 +58,9 @@ class ImageLink {
 const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 Random _rnd = Random();
 
-String getRandomString() => String.fromCharCodes(Iterable.generate(
-    28, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+String getRandomString([int len = 28]) =>
+    String.fromCharCodes(Iterable.generate(
+        len, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
 bool validateField(context, TextEditingController controller,
     [int validateLength = 0,
@@ -120,6 +121,7 @@ class Config {
   static String shopDetailsInsert = "shop_details_Insert.php";
   static String getCat = "getCategoryId.php";
   static String insertProducts = "products_Insert.php";
+  static String afterShipping = "merchant_panel/after_shipping.php";
   static String merchantProductsUrl = "merchant_product.php";
   static String changeMerchantProducts = "merchant_panel/product_update.php";
   static String getMerchantDetails = "area_details.php";
