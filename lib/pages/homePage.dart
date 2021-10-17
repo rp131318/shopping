@@ -188,12 +188,16 @@ class _homePageState extends State<homePage> {
                       child: Row(
                         children: [
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showSnackbar(context, "Coming Soon", Colors.red);
+                            },
                             child: buildCard(
                                 "Daily Revenue", ImageLink.dailyRevenueImage),
                           ),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showSnackbar(context, "Coming Soon", Colors.red);
+                            },
                             child: buildCard(
                                 "GST Compliance", ImageLink.gstComplianceImage),
                           ),
@@ -219,17 +223,23 @@ class _homePageState extends State<homePage> {
                       child: Row(
                         children: [
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showSnackbar(context, "Coming Soon", Colors.red);
+                            },
                             child: buildCard("Merchant Agreement",
                                 ImageLink.merchantAgreementImage),
                           ),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showSnackbar(context, "Coming Soon", Colors.red);
+                            },
                             child: buildCard("Discount Offer Scheme",
                                 ImageLink.discountOfferSchemeImage),
                           ),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              showSnackbar(context, "Coming Soon", Colors.red);
+                            },
                             child: buildCard("Holiday Management",
                                 ImageLink.holidayManagementImage),
                           ),

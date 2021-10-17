@@ -1007,7 +1007,7 @@ class _orderManagementState extends State<orderManagement> {
       print("PRID :: ${productId[currentDetails]}");
       get(Config.mainUrl +
               Config.afterShipping +
-              "?id=${productId[currentDetails]}&ship_order=data&shipment_id=data")
+              "?id=${productId[currentDetails]}&shipping_order_id=${data['order_id']}&shipment_id=${data['shipment_id']}")
           .then((value) async {
         //
         print("Res : ${value.body}");
@@ -1015,6 +1015,7 @@ class _orderManagementState extends State<orderManagement> {
           showSnackbar(
               context, "Shipping process done successfully", Colors.green);
           await prefs.setString('${orderId[currentDetails]}', 'true');
+          setState(() {});
         } else {
           showSnackbar(context, "Error : ${value.body}", Colors.red);
         }
