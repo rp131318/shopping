@@ -734,7 +734,7 @@ class _orderManagementState extends State<orderManagement> {
                 fontSize: 18, fontWeight: FontWeight.bold, color: colorBlack5),
           ),
           trailing:
-              prefs.getString('${orderId[currentDetails]}').toString() == "null1"
+              prefs.getString('${orderId[currentDetails]}').toString() == "null"
                   ? ButtonWidget(context, "Pending", productDimensionFunction,
                       true, 14, 14, 80, 30, 16)
                   : Container(
@@ -994,17 +994,30 @@ class _orderManagementState extends State<orderManagement> {
 
     post(Config.placeOrderShipRocket, body: jsonEncode(body), headers: header)
         .then((value) async {
-      final data = value.body;
-      data.replaceAll("\n", "");
-      print("Pickup :: ${value.body}");
+      var data1 = (value.body);
+      data1.replaceAll("\n", "");
+      final data = jsonDecode(data1);
+      print("Pickup :: ${data}");
+      if (data['message'].toString() != "null") {
+        showSnackbar(context, "Error : ${data['message']} ${data['errors']}",
+            Colors.red);
+        return;
+      }
       await prefs.setString('${orderId[currentDetails]}', 'true');
       print("PRID :: ${productId[currentDetails]}");
       get(Config.mainUrl +
               Config.afterShipping +
               "?id=${productId[currentDetails]}&ship_order=data&shipment_id=data")
-          .then((value) {
+          .then((value) async {
         //
         print("Res : ${value.body}");
+        if (value.body.toString() == "done") {
+          showSnackbar(
+              context, "Shipping process done successfully", Colors.green);
+          await prefs.setString('${orderId[currentDetails]}', 'true');
+        } else {
+          showSnackbar(context, "Error : ${value.body}", Colors.red);
+        }
       });
     });
 
@@ -1044,7 +1057,8 @@ class _orderManagementState extends State<orderManagement> {
 
   Future<void> getData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.getString('shop_id');
+    String id = prefs.getString('shop_id');
+    print("id :: $id");
     get(Config.mainUrl +
             Config.getMerchantDetails +
             "?shop_id=" +

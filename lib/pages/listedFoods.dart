@@ -86,6 +86,7 @@ class _listedFoodsState extends State<listedFoods> {
     print("Cat Id :: $global_cat_id");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String shop_id = prefs.getString('shop_id');
+    print("shop_id :: $shop_id");
     get(Config.mainUrl + Config.merchantProductsUrl + "?shop_id=" + shop_id)
         .then((value) {
       // print("Merchant Products :: ${value.body}");
