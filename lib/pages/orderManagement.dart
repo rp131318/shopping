@@ -130,7 +130,7 @@ class _orderManagementState extends State<orderManagement> {
                           ),
                           productImage.length > 0
                               ? SizedBox(
-                                  height: 166 * productImage.length.toDouble(),
+                                  height: 177 * productImage.length.toDouble(),
                                   child: ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       itemCount: productImage.length,
@@ -225,6 +225,16 @@ class _orderManagementState extends State<orderManagement> {
                                                               fontSize: 18,
                                                             ),
                                                           ),
+                                                          Text(
+                                                            "Qty " +
+                                                                qnt[index]
+                                                                    .toString()
+                                                                    .split(
+                                                                        "_")[1],
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
                                                           Row(
                                                             children: [
                                                               Icon(
@@ -312,7 +322,9 @@ class _orderManagementState extends State<orderManagement> {
                                                                       right: 4),
                                                               child: Text(
                                                                 qnt[index]
-                                                                    .toString(),
+                                                                    .toString()
+                                                                    .split(
+                                                                        "_")[0],
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         18,
@@ -882,7 +894,8 @@ class _orderManagementState extends State<orderManagement> {
             ),
           ),
         ),
-        buildProfileText1("Quantity", qnt[currentDetails].toString()),
+        buildProfileText1("Quantity",
+            "${qnt[currentDetails].toString().split("_")[0]} * ${qnt[currentDetails].toString().split("_")[1]}"),
         SizedBox(
           height: 8,
         ),
@@ -972,12 +985,13 @@ class _orderManagementState extends State<orderManagement> {
       // "sku": "${productCode[currentDetails]}",
       // "units": "${qnt[currentDetails]}",
       // "selling_price": "${productPrice[currentDetails]}",
-      "payment_method": "COD",
+      "payment_method": "${paymentMethod[currentDetails]}",
       "order_items": [
         {
-          "name": "${productName[currentDetails]}",
+          "name":
+              "${productName[currentDetails]} ${qnt[currentDetails].toString().split("_")[0]}",
           "sku": "0000",
-          "units": int.parse(qnt[currentDetails].toString().split(" ")[0]),
+          "units": int.parse(qnt[currentDetails].toString().split("_")[1]),
           "selling_price": "${productPrice[currentDetails]}",
           "discount": "",
           "tax": "",
