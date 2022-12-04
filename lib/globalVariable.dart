@@ -1,12 +1,11 @@
 library my_prj.globals;
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 // String colorAccent = "32a4f4";
 // String colorDark = "0976d2";
@@ -112,7 +111,7 @@ int getJsonLength(jsonText) {
 }
 
 class Config {
-  static String mainUrl = "http://sweetsavoury.online/";
+  static String mainUrl = "https://swajan.online/api/";
   static String updateUrl = "update.php";
   static String checkProfileUrl = "check_profile.php";
   static String userInsertUrl = "user_insert.php";

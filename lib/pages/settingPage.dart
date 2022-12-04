@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +10,7 @@ import 'package:shopping/authProfile/auth.dart';
 import 'package:shopping/authProfile/login.dart';
 import 'package:shopping/globalVariable.dart';
 import 'package:shopping/globalVariable.dart' as global;
+
 import '../authProfile/completeProfile.dart';
 
 class settingPage extends StatefulWidget {
@@ -130,7 +130,7 @@ class _settingPageState extends State<settingPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(left: 6),
                                     child: Text(
-                                      _auth.currentUser.phoneNumber,
+                                      _auth.currentUser.phoneNumber ?? "NA",
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                           fontSize: 16,

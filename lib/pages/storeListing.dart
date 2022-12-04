@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping/globalVariable.dart';
 import 'package:shopping/globalVariable.dart' as global;
 import 'package:shopping/widget/progressHud.dart';
+
 import 'homePage.dart';
 
 // ignore: camel_case_types
@@ -486,7 +488,7 @@ class _storeListingState extends State<storeListing> {
         .child('Food Images/' + _auth.currentUser.uid + "/" + milli);
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    link = await taskSnapshot.ref.getDownloadURL().toString();
+    link = taskSnapshot.ref.getDownloadURL().toString();
     var dowurl = await (await uploadTask.onComplete).ref.getDownloadURL();
     link = dowurl.toString();
     print("Link Top :: $link");
@@ -514,7 +516,7 @@ class _storeListingState extends State<storeListing> {
     print("Qnt :: $qntGmCus\nQnt Price :: $qntPrice");
     print("Meas :: $_unit");
     print("Image link :: $link");
-    if(_unit == "Gram"){
+    if (_unit == "Gram") {
       _unit = "Kg";
     }
     print(
